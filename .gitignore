@@ -8,3 +8,5 @@ build/
 Thumbs.db
 .vscode/
 .idea/
+server/uploads/
+server/eng.traineddata
