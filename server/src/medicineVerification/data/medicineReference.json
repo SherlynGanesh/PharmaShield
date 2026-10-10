@@ -1,0 +1,463 @@
+[
+  {
+    "productId": "CROCIN-650-IN",
+    "medicineName": "Crocin 650",
+    "manufacturer": "Haleon / Crocin brand",
+    "brand": "Crocin",
+    "strength": "650 mg",
+    "composition": [
+      {
+        "ingredient": "Paracetamol",
+        "strength": "650 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "product-level",
+    "batchRecords": [],
+    "source": "Official Crocin India product page: https://www.crocin.com/crocin-products-for-adult/crocin-650-tablets/",
+    "sourceNotes": "Active ingredient reference only. Verify the exact package/label and marketer/manufacturer wording for the pack being scanned.",
+    "verified": true
+  },
+  {
+    "productId": "DOLO-650-IN",
+    "medicineName": "Dolo-650",
+    "manufacturer": "Micro Labs Limited",
+    "brand": "Dolo",
+    "strength": "650 mg",
+    "composition": [
+      {
+        "ingredient": "Paracetamol",
+        "strength": "650 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "product-level",
+    "batchRecords": [],
+    "source": "https://www.1mg.com/drugs/dolo-650mg-tablet-74467",
+    "sourceNotes": "Active ingredient reference. Confirm manufacturer and full label details against the actual pack.",
+    "verified": true
+  },
+  {
+    "productId": "ASPIRIN-75-GENERIC",
+    "medicineName": "Aspirin 75 mg",
+    "manufacturer": null,
+    "brand": null,
+    "strength": "75 mg",
+    "composition": [
+      {
+        "ingredient": "Aspirin",
+        "strength": "75 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "generic-product-reference",
+    "batchRecords": [],
+    "source": "https://nppa.gov.in/en/aspirin",
+    "sourceNotes": "Generic reference only; aspirin is sold in multiple strengths and formulations. This is not a verified record for a specific brand or package. Match strength/formulation to the scanned label.",
+    "verified": true
+  },
+  {
+    "productId": "TELMA-40-IN",
+    "medicineName": "Telma 40",
+    "manufacturer": "Glenmark Pharmaceuticals Limited",
+    "brand": "Telma",
+    "strength": "40 mg",
+    "composition": [
+      {
+        "ingredient": "Telmisartan",
+        "strength": "40 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "product-level",
+    "batchRecords": [],
+    "source": "https://glenmarkindia.com/wp-products/telma-tablet-20-40-80mg/",
+    "sourceNotes": "This is Telma 40, not combination products such as Telma-H, Telma-AM, or Telma-CT. Verify exact package details against the scanned pack.",
+    "verified": true
+  },
+  {
+    "productId": "PIOPAR-GZ-TOTAL-IN",
+    "medicineName": "Piopar-GZ Total",
+    "manufacturer": "Bioaltus Pharmaceuticals Pvt. Ltd.",
+    "brand": "Piopar-GZ Total",
+    "marketedBy": "Mitoch Pharma Pvt. Ltd.",
+    "strength": "Gliclazide 60 mg + Pioglitazone 15 mg + Metformin Hydrochloride 500 mg",
+    "composition": [
+      {
+        "ingredient": "Gliclazide (sustained release)",
+        "strength": "90 mg"
+      },
+      {
+        "ingredient": "Pioglitazone Hydrochloride (equivalent to Pioglitazone)",
+        "strength": "15 mg"
+      },
+      {
+        "ingredient": "Metformin Hydrochloride (sustained release)",
+        "strength": "500 mg"
+      }
+    ],
+    "dosageForm": "Bilayered tablet",
+    "recordType": "product-level",
+    "batchRecords": [],
+    "source": "User-provided medicine package image; label transcription only",
+    "sourceNotes": "Added for project testing based on the visible package label. Product details have not been independently verified against an authoritative source. Batch number BD260951B, manufacturing date 04/2026, and expiry date 03/2028 were visible on the sample image but are intentionally not stored as verified batch data.",
+    "verified": false
+  },
+  {
+    "productId": "PAN-40-IN",
+    "medicineName": "PAN 40",
+    "manufacturer": "Alkem Health Science",
+    "brand": "PAN 40",
+    "strength": "40 mg",
+    "composition": [
+      {
+        "ingredient": "Pantoprazole",
+        "strength": "40 mg"
+      }
+    ],
+    "dosageForm": "Gastro-resistant tablet",
+    "recordType": "product",
+    "batchRecords": [],
+    "source": "User-uploaded medicine package image",
+    "sourceNotes": "Product details transcribed from package image. Requires independent verification against a reliable reference.",
+    "verified": false
+  },
+  {
+    "productId": "NEW-SARIDON-IN",
+    "medicineName": "New Saridon",
+    "manufacturer": "Unknown",
+    "brand": "New Saridon",
+    "strength": "Paracetamol 500 mg + Caffeine 50 mg",
+    "composition": [
+      {
+        "ingredient": "Paracetamol",
+        "strength": "500 mg"
+      },
+      {
+        "ingredient": "Caffeine",
+        "strength": "50 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "product",
+    "batchRecords": [],
+    "source": "Provisional reference; product information requires confirmation",
+    "verified": false
+  },
+  {
+    "productId": "SARIDON-ADVANCE-IN",
+    "medicineName": "Saridon Advance",
+    "manufacturer": "Unknown",
+    "brand": "Saridon Advance",
+    "strength": "Paracetamol 650 mg + Caffeine 50 mg",
+    "composition": [
+      {
+        "ingredient": "Paracetamol",
+        "strength": "650 mg"
+      },
+      {
+        "ingredient": "Caffeine",
+        "strength": "50 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "product",
+    "batchRecords": [],
+    "source": "Provisional reference; product information requires confirmation",
+    "verified": false
+  },
+  {
+    "productId": "CALPOL-650-IN",
+    "medicineName": "Calpol 650",
+    "manufacturer": "Unknown",
+    "brand": "Calpol 650",
+    "strength": "650 mg",
+    "composition": [
+      {
+        "ingredient": "Paracetamol",
+        "strength": "650 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "product",
+    "batchRecords": [],
+    "source": "Provisional reference",
+    "verified": false
+  },
+  {
+    "productId": "DOLOPAR-650-IN",
+    "medicineName": "Dolopar 650",
+    "manufacturer": "Unknown",
+    "brand": "Dolopar 650",
+    "strength": "650 mg",
+    "composition": [
+      {
+        "ingredient": "Paracetamol",
+        "strength": "650 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "product",
+    "batchRecords": [],
+    "source": "Provisional reference",
+    "verified": false
+  },
+  {
+    "productId": "CV-SPRIN-75-IN",
+    "medicineName": "CV Sprin 75",
+    "manufacturer": "Cadila Pharmaceuticals Ltd.",
+    "brand": "CV Sprin",
+    "strength": "75 mg",
+    "composition": [
+      {
+        "ingredient": "Aspirin",
+        "strength": "75 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "product",
+    "batchRecords": [],
+    "source": "Medicine product listing",
+    "verified": false
+  },
+  {
+    "productId": "ASPIDOT-75-IN",
+    "medicineName": "Aspidot 75",
+    "manufacturer": "Three Dots Life Science Pvt. Ltd.",
+    "brand": "Aspidot",
+    "strength": "75 mg",
+    "composition": [
+      {
+        "ingredient": "Aspirin",
+        "strength": "75 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "product",
+    "batchRecords": [],
+    "source": "Medicine product listing",
+    "verified": false
+  },
+  {
+    "productId": "ASA-75-IN",
+    "medicineName": "ASA 75",
+    "manufacturer": "Zydus Cadila",
+    "brand": "ASA",
+    "strength": "75 mg",
+    "composition": [
+      {
+        "ingredient": "Aspirin",
+        "strength": "75 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "product",
+    "batchRecords": [],
+    "source": "Medicine product listing",
+    "verified": false
+  },
+  {
+    "productId": "E-PRIN-75-IN",
+    "medicineName": "E Prin 75",
+    "manufacturer": "Torrent Pharmaceuticals Ltd.",
+    "brand": "E Prin",
+    "strength": "75 mg",
+    "composition": [
+      {
+        "ingredient": "Aspirin",
+        "strength": "75 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "product",
+    "batchRecords": [],
+    "source": "Medicine product listing",
+    "verified": false
+  },
+  {
+    "productId": "ACTISPRIN-75-IN",
+    "medicineName": "Actisprin 75",
+    "manufacturer": "Alkem Laboratories Ltd.",
+    "brand": "Actisprin",
+    "strength": "75 mg",
+    "composition": [
+      {
+        "ingredient": "Aspirin",
+        "strength": "75 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "product",
+    "batchRecords": [],
+    "source": "Medicine product listing",
+    "verified": false
+  },
+  {
+    "productId": "LOPRIN-75-IN",
+    "medicineName": "Loprin-75",
+    "manufacturer": "Torrent Pharmaceuticals Ltd.",
+    "brand": "Loprin-75",
+    "strength": "75 mg",
+    "composition": [
+      {
+        "ingredient": "Aspirin",
+        "strength": "75 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "product",
+    "batchRecords": [],
+    "source": "Medicine product listing",
+    "verified": false
+  },
+  {
+    "productId": "ASICOM-75-IN",
+    "medicineName": "Asicom 75",
+    "manufacturer": "Comed Chemicals Ltd.",
+    "brand": "Asicom",
+    "strength": "75 mg",
+    "composition": [
+      {
+        "ingredient": "Aspirin",
+        "strength": "75 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "product",
+    "batchRecords": [],
+    "source": "Medicine product listing",
+    "verified": false
+  },
+  {
+    "productId": "DELISPRIN-75-IN",
+    "medicineName": "Delisprin 75",
+    "manufacturer": "Aristo Pharmaceuticals Pvt. Ltd.",
+    "brand": "Delisprin",
+    "strength": "75 mg",
+    "composition": [
+      {
+        "ingredient": "Aspirin",
+        "strength": "75 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "product",
+    "batchRecords": [],
+    "source": "Medicine product listing",
+    "verified": false
+  },
+  {
+    "productId": "ASPO-75-IN",
+    "medicineName": "Aspo 75",
+    "manufacturer": "Zeelab Pharmacy Pvt. Ltd.",
+    "brand": "Aspo",
+    "strength": "75 mg",
+    "composition": [
+      {
+        "ingredient": "Aspirin",
+        "strength": "75 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "product",
+    "batchRecords": [],
+    "source": "Medicine product listing",
+    "verified": false
+  },
+  {
+    "productId": "TESCOSPRIN-75-IN",
+    "medicineName": "Tescosprin-75",
+    "manufacturer": "Tesla Labs",
+    "brand": "Tescosprin-75",
+    "strength": "75 mg",
+    "composition": [
+      {
+        "ingredient": "Aspirin",
+        "strength": "75 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "product",
+    "batchRecords": [],
+    "source": "Medicine product listing",
+    "verified": false
+  },
+  {
+    "productId": "ASPEEDAY-75-IN",
+    "medicineName": "Aspeeday 75",
+    "manufacturer": "Shrinivas Gujarat Laboratories Pvt. Ltd.",
+    "brand": "Aspeeday",
+    "strength": "75 mg",
+    "composition": [
+      {
+        "ingredient": "Aspirin",
+        "strength": "75 mg"
+      }
+    ],
+    "dosageForm": "Extended-release tablet",
+    "recordType": "product",
+    "batchRecords": [],
+    "source": "Medicine product listing",
+    "verified": false
+  },
+  {
+    "productId": "ASPIRIN-75-GENERIC",
+    "medicineName": "Aspirin 75mg",
+    "manufacturer": "Unknown",
+    "brand": "Generic Aspirin",
+    "strength": "75 mg",
+    "composition": [
+      {
+        "ingredient": "Aspirin",
+        "strength": "75 mg"
+      }
+    ],
+    "dosageForm": "Tablet",
+    "recordType": "generic",
+    "batchRecords": [],
+    "source": "Generic ingredient reference",
+    "verified": false
+  },
+  {
+    "productId": "GLIMEPIRIDE-GENERIC",
+    "medicineName": "Glimepiride",
+    "manufacturer": "Unknown",
+    "brand": "Generic Glimepiride",
+    "strength": "Varies by product",
+    "composition": [],
+    "dosageForm": "Tablet",
+    "recordType": "generic",
+    "batchRecords": [],
+    "source": "Generic medicine placeholder",
+    "sourceNotes": "Ingredient strength must be obtained from the package or a reliable reference before composition verification.",
+    "verified": false
+  },
+  {
+    "productId": "GLICLAZIDE-GENERIC",
+    "medicineName": "Gliclazide",
+    "manufacturer": "Unknown",
+    "brand": "Generic Gliclazide",
+    "strength": "Varies by product",
+    "composition": [],
+    "dosageForm": "Tablet",
+    "recordType": "generic",
+    "batchRecords": [],
+    "source": "Generic medicine placeholder",
+    "sourceNotes": "Immediate-release and modified-release formulations must be distinguished. Strength must be obtained from the package or a reliable reference.",
+    "verified": false
+  },
+  {
+    "productId": "GLIPIZIDE-GENERIC",
+    "medicineName": "Glipizide",
+    "manufacturer": "Unknown",
+    "brand": "Generic Glipizide",
+    "strength": "Varies by product",
+    "composition": [],
+    "dosageForm": "Tablet",
+    "recordType": "generic",
+    "batchRecords": [],
+    "source": "Generic medicine placeholder",
+    "sourceNotes": "Strength and formulation must be obtained from the package or a reliable reference before composition verification.",
+    "verified": false
+  }
+]
