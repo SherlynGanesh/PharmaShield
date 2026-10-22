@@ -17,6 +17,7 @@ function normalizeBatchNumber(value) {
   if (!value) return "";
   return String(value)
     .toUpperCase()
+    .replace(/^(?:B(?:ATCH)?\.?\s*(?:NO\.?)?|LOT\.?)\s*[:.-]?\s*/i, "")
     .replace(/[^A-Z0-9]/g, "")
     .trim();
 }
@@ -152,7 +153,15 @@ function verifyAgainstBlockchainRecord(extractedDetails, registeredRecord, stage
     const extName = normalizeString(extractedDetails.medicineName);
     const regName = normalizeString(registeredRecord.medicineName);
 
-    if (extName === regName || extName.includes(regName) || regName.includes(extName)) {
+    let nameMatch = extName === regName || extName.includes(regName) || regName.includes(extName);
+    if (!nameMatch) {
+      const getTokens = (str) => str.split(/\s+/).filter(w => w.length >= 3 && !['tablets', 'tablet', 'capsules', 'capsule', 'syrup', 'injection'].includes(w));
+      const regTokens = getTokens(regName);
+      const extTokens = getTokens(extName);
+      nameMatch = regTokens.some(t => extTokens.some(et => et.includes(t) || t.includes(et)));
+    }
+
+    if (nameMatch) {
       checks.medicineName = "MATCH";
     } else {
       checks.medicineName = "MISMATCH";
@@ -160,20 +169,30 @@ function verifyAgainstBlockchainRecord(extractedDetails, registeredRecord, stage
     }
   }
 
-  // 2. Manufacturer Check
+  // 2. Manufacturer / Marketer Check
   const regMfr = registeredRecord.manufacturer || registeredRecord.manufacturerName;
-  if (!extractedDetails?.manufacturer) {
+  if (!extractedDetails?.manufacturer && !extractedDetails?.marketer) {
     checks.manufacturer = "MISSING_INFORMATION";
     warnings.push("Manufacturer name was not detected on the package image");
   } else {
-    const extMfr = normalizeString(extractedDetails.manufacturer);
+    const extMfr = normalizeString(extractedDetails.manufacturer || "");
+    const extMkt = normalizeString(extractedDetails.marketer || "");
     const regMfrNorm = normalizeString(regMfr);
 
-    if (extMfr === regMfrNorm || extMfr.includes(regMfrNorm) || regMfrNorm.includes(extMfr)) {
+    const mfrMatch = extMfr && (extMfr === regMfrNorm || extMfr.includes(regMfrNorm) || regMfrNorm.includes(extMfr));
+    const mktMatch = extMkt && (extMkt === regMfrNorm || extMkt.includes(regMfrNorm) || regMfrNorm.includes(extMkt));
+
+    const genericWords = ['pharmaceuticals', 'pharma', 'private', 'limited', 'pvt', 'ltd', 'laboratories', 'lab', 'corp', 'inc'];
+    const getTokens = (str) => str.split(/\s+/).filter(w => w.length >= 3 && !genericWords.includes(w));
+    const regTokens = getTokens(regMfrNorm);
+    const extTokens = getTokens(extMfr + " " + extMkt);
+    const tokenMatch = regTokens.some(token => extTokens.some(et => et.includes(token) || token.includes(et)));
+
+    if (mfrMatch || mktMatch || tokenMatch) {
       checks.manufacturer = "MATCH";
     } else {
       checks.manufacturer = "MISMATCH";
-      warnings.push(`Manufacturer differs from registered record: extracted "${extractedDetails.manufacturer}", registered "${regMfr}"`);
+      warnings.push(`Manufacturer differs from registered record: extracted "${extractedDetails.manufacturer || extractedDetails.marketer}", registered "${regMfr}"`);
     }
   }
 

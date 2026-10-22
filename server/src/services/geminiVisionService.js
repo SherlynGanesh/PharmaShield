@@ -2,12 +2,17 @@
 const OpenAI = require("openai");
 const fs = require("fs");
 const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, "..", "..", ".env") });
+require("dotenv").config();
 
 const { extractTextFromImage } = require("./ocrService");
 const { parseMedicineText } = require("./medicineParser");
 
 let aiClient = null;
 function getAiClient() {
+  if (!process.env.GROQ_API_KEY) {
+    require("dotenv").config({ path: path.join(__dirname, "..", "..", ".env") });
+  }
   if (!process.env.GROQ_API_KEY) {
     return null;
   }
@@ -27,6 +32,7 @@ const MODEL = "qwen/qwen3.8-27b";
 const FIELD_DEFAULTS = {
   medicineName: null,
   manufacturer: null,
+  marketer: null,
   composition: null,
   batchNumber: null,
   manufacturingDate: null,
@@ -125,55 +131,33 @@ async function analyzeMedicineImage(imagePath) {
   const mimeType = detectImageMimeType(imageBuffer);
   const base64Image = imageBuffer.toString("base64");
 
-  const systemPrompt = `
-You are a careful pharmaceutical package information extraction system.
-
-Read only information visibly printed on the medicine packaging.
-Do not use outside knowledge to fill missing information.
-Do not infer details from the medicine name alone.
-
-Return one valid JSON object with exactly these fields:
-{
-  "medicineName": null,
-  "manufacturer": null,
-  "composition": null,
-  "batchNumber": null,
-  "manufacturingDate": null,
-  "expiryDate": null,
-  "dosage": null,
-  "netVolume": null,
-  "mrp": null,
-  "usp": null,
-  "warnings": []
-}
+  const systemPrompt = `You are a high-precision pharmaceutical package vision extraction system.
+Examine the package image with extreme care and accuracy.
 
 Extraction rules:
-1. Use null when a field is absent, obscured, or unreadable.
-2. medicineName: extract the printed brand or medicine name.
-3. manufacturer: extract the manufacturer name, not the marketer,
-   unless the package identifies only the marketer.
-4. composition: extract ALL visible active ingredients and their
-   strengths, exactly as printed. Keep them in one string.
-   Include dosage-form wording only if printed as part of the composition.
-   Do not invent ingredients or strengths.
-5. batchNumber: preserve the printed batch/lot identifier exactly.
-6. manufacturingDate and expiryDate: preserve the printed date text.
-   Never calculate or guess dates.
-7. dosage: extract printed strength or dosage information only when
-   clearly identified. Do not confuse it with composition.
-8. netVolume: extract the printed quantity, pack size, or net volume.
-9. mrp: preserve the printed maximum retail price and currency text.
-10. usp: extract a clearly printed USP or product claim, if present.
-11. warnings: return visible medicine/package warnings as an array
-    of strings. Use [] when none are readable.
-12. Do not treat marketing claims as medical facts.
-13. Do not confuse manufacturing details with expiry details.
-14. Every field except warnings must be a string or null.
-15. Do not add extra fields, explanations, or Markdown.
+1. medicineName: The prominent brand or medicine trade name (e.g., "Piopar-GZ Total", "PAN 40").
+2. manufacturer: The manufacturing company name. Look specifically for "Manufactured by:" or "Mfg. by:". Read each letter with utmost precision (e.g. read "BIOALTUS PHARMACEUTICALS PVT. LTD.", do not misread as "BIOS").
+3. marketer: If a separate "Marketed by:" company is printed, extract it (e.g., "MITOCH PHARMA PVT. LTD.").
+4. batchNumber: The batch or lot identifier, typically stamped in dot-matrix ink at the bottom edge, flap, or crimp (e.g., following "B.No.", "Batch:"). Extract just the batch code without the "B.No." prefix (e.g., "BD260951B" or "19443036").
+5. manufacturingDate: The manufacturing date (e.g., "MFG. DATE 04/2026"). Output as MM/YYYY.
+6. expiryDate: The expiration date (e.g., "EXPIRY DATE 03/2028"). Output as MM/YYYY.
+7. composition: All visible active ingredients and strengths.
 
-If text is blurry, partially visible, or ambiguous, prefer null
-over a guessed answer.
-`;
+Return one valid JSON object with exactly:
+{
+  "medicineName": string or null,
+  "manufacturer": string or null,
+  "marketer": string or null,
+  "composition": string or null,
+  "batchNumber": string or null,
+  "manufacturingDate": string or null,
+  "expiryDate": string or null,
+  "dosage": string or null,
+  "netVolume": string or null,
+  "mrp": string or null,
+  "usp": null,
+  "warnings": []
+}`;
 
   try {
     const ai = getAiClient();
@@ -184,6 +168,7 @@ over a guessed answer.
       const normalized = normalizeMedicineInfo({
         medicineName: parsed.medicineName || null,
         manufacturer: parsed.manufacturer || null,
+        marketer: null,
         composition: null,
         batchNumber: parsed.batchNumber || null,
         manufacturingDate: parsed.manufacturingDate || null,
@@ -204,47 +189,7 @@ over a guessed answer.
     const response = await ai.chat.completions.create({
       model: MODEL,
       temperature: 0,
-      reasoning_effort: "none",
-response_format: {
-  type: "json_schema",
-  json_schema: {
-    name: "medicine_package",
-    strict: true,
-    schema: {
-      type: "object",
-      properties: {
-        medicineName: { type: ["string", "null"] },
-        manufacturer: { type: ["string", "null"] },
-        composition: { type: ["string", "null"] },
-        batchNumber: { type: ["string", "null"] },
-        manufacturingDate: { type: ["string", "null"] },
-        expiryDate: { type: ["string", "null"] },
-        dosage: { type: ["string", "null"] },
-        netVolume: { type: ["string", "null"] },
-        mrp: { type: ["string", "null"] },
-        usp: { type: ["string", "null"] },
-        warnings: {
-          type: "array",
-          items: { type: "string" }
-        }
-      },
-      required: [
-        "medicineName",
-        "manufacturer",
-        "composition",
-        "batchNumber",
-        "manufacturingDate",
-        "expiryDate",
-        "dosage",
-        "netVolume",
-        "mrp",
-        "usp",
-        "warnings"
-      ],
-      additionalProperties: false
-    }
-  }
-},
+      response_format: { type: "json_object" },
       max_completion_tokens: 2048,
       messages: [
         {
@@ -257,7 +202,7 @@ response_format: {
             {
               type: "text",
               text:
-                "Carefully inspect this medicine package. Read the composition panel and all visible printed details. Return the required JSON only.",
+                "Carefully inspect this medicine package image. Read the brand name, manufacturer, batch number, manufacturing date, and expiry date. Return valid JSON only.",
             },
             {
               type: "image_url",

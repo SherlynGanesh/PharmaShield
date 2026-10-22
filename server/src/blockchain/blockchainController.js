@@ -8,7 +8,7 @@ const { analyzeMedicineImage } = require("../services/geminiVisionService");
  * Extracts medicine details from an uploaded file or JSON body.
  */
 async function extractDetailsFromRequest(req) {
-  // If pre-parsed medicineInfo is passed directly (useful for testing or direct API calls)
+  // If pre-parsed medicineInfo is passed directly (JSON string or object)
   if (req.body?.medicineInfo) {
     let parsed = req.body.medicineInfo;
     if (typeof parsed === "string") {
@@ -19,6 +19,17 @@ async function extractDetailsFromRequest(req) {
       }
     }
     return parsed;
+  }
+
+  // If individual fields are provided in request body
+  if (req.body?.medicineName || req.body?.expiryDate || req.body?.manufacturer || req.body?.batchNumber) {
+    return {
+      medicineName: req.body.medicineName || "",
+      batchNumber: req.body.batchNumber || req.body.batchId || "",
+      manufacturer: req.body.manufacturer || req.body.manufacturerName || "",
+      manufacturingDate: req.body.manufacturingDate || "",
+      expiryDate: req.body.expiryDate || "",
+    };
   }
 
   // If an image file was uploaded

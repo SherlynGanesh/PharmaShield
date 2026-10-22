@@ -17,13 +17,13 @@ export default function App() {
 
   const initialParams = getInitialParams();
 
-  // Top Portal Selection: 'STAKEHOLDER' (Role Portal) vs 'ADMIN' (Central Admin Track & Trace)
+  // Top Portal Selection: 'STAKEHOLDER' vs 'ADMIN'
   const [portalMode, setPortalMode] = useState(initialParams.portal);
 
   // Stakeholder Active Role: 'MANUFACTURER' | 'DISTRIBUTOR' | 'WHOLESALER' | 'RETAILER' | 'PATIENT'
   const [stakeholderRole, setStakeholderRole] = useState(initialParams.role);
 
-  // Admin Subtabs: 'PIPELINE' | 'LEDGER' | 'INTEGRITY' | 'SIMULATOR'
+  // Admin Subtabs: 'PIPELINE' | 'LEDGER' | 'INTEGRITY'
   const [adminTab, setAdminTab] = useState('PIPELINE');
 
   // Global Ledger State
@@ -33,7 +33,7 @@ export default function App() {
   const [auditing, setAuditing] = useState(false);
 
   // Active Batch Selected for Inspection / Flow
-  const [selectedBatchId, setSelectedBatchId] = useState(initialParams.batch || 'BATCH-2026-X1');
+  const [selectedBatchId, setSelectedBatchId] = useState(initialParams.batch || '');
 
   // Sync URL parameters when switching portals or roles
   useEffect(() => {
@@ -57,9 +57,8 @@ export default function App() {
       const data = await res.json();
       if (data.success) {
         setLedger(data);
-        // Default selected batch to latest registered batch if not set
         const batchKeys = Object.keys(data.registeredBatches || {});
-        if (batchKeys.length > 0 && (!selectedBatchId || !data.registeredBatches[selectedBatchId])) {
+        if (batchKeys.length > 0 && !selectedBatchId) {
           setSelectedBatchId(batchKeys[batchKeys.length - 1]);
         }
       }
@@ -89,51 +88,21 @@ export default function App() {
   }, []);
 
   // =========================================================================
-  // 1. MANUFACTURER STATE & HANDLERS
+  // 1. MANUFACTURER STATE & HANDLERS (No Preloaded Dummy Data)
   // =========================================================================
   const [mfrForm, setMfrForm] = useState({
-    medicineName: 'Piopar-GZ Total',
-    batchNumber: 'BATCH-2026-X1',
-    quantity: '500',
-    manufacturerName: 'Bioaltus Pharmaceuticals Pvt. Ltd.',
-    manufacturingDate: '04/2026',
-    expiryDate: '03/2028',
+    medicineName: '',
+    batchNumber: '',
+    quantity: '',
+    manufacturerName: '',
+    manufacturingDate: '',
+    expiryDate: '',
   });
   const [mfrImageFile, setMfrImageFile] = useState(null);
   const [mfrImagePreview, setMfrImagePreview] = useState(null);
   const [mfrLoading, setMfrLoading] = useState(false);
   const [mfrResult, setMfrResult] = useState(null);
   const [mfrError, setMfrError] = useState(null);
-
-  const loadManufacturerSample = () => {
-    const randomId = 'BATCH-' + Math.floor(100 + Math.random() * 900);
-    setMfrForm({
-      medicineName: 'Piopar-GZ Total',
-      batchNumber: randomId,
-      quantity: '1000',
-      manufacturerName: 'Bioaltus Pharmaceuticals Pvt. Ltd.',
-      manufacturingDate: '04/2026',
-      expiryDate: '03/2028',
-    });
-    setSelectedBatchId(randomId);
-    setMfrResult(null);
-    setMfrError(null);
-  };
-
-  const loadPan40Sample = () => {
-    const batchId = '19443036-' + Math.floor(100 + Math.random() * 900);
-    setMfrForm({
-      medicineName: 'PAN 40',
-      batchNumber: batchId,
-      quantity: '500',
-      manufacturerName: 'Health Science',
-      manufacturingDate: '11/2019',
-      expiryDate: '04/2022',
-    });
-    setSelectedBatchId(batchId);
-    setMfrResult(null);
-    setMfrError(null);
-  };
 
   const handleManufacturerRegister = async (e) => {
     e.preventDefault();
@@ -143,22 +112,22 @@ export default function App() {
 
     try {
       const formData = new FormData();
-      formData.append('medicineName', mfrForm.medicineName);
-      formData.append('batchNumber', mfrForm.batchNumber);
-      formData.append('quantity', mfrForm.quantity);
-      formData.append('manufacturerName', mfrForm.manufacturerName);
-      formData.append('manufacturingDate', mfrForm.manufacturingDate);
-      formData.append('expiryDate', mfrForm.expiryDate);
+      formData.append('medicineName', mfrForm.medicineName.trim());
+      formData.append('batchNumber', mfrForm.batchNumber.trim().toUpperCase());
+      formData.append('quantity', mfrForm.quantity || '1');
+      formData.append('manufacturerName', mfrForm.manufacturerName.trim());
+      formData.append('manufacturingDate', mfrForm.manufacturingDate.trim());
+      formData.append('expiryDate', mfrForm.expiryDate.trim());
 
       if (mfrImageFile) {
         formData.append('image', mfrImageFile);
       } else {
         formData.append('medicineInfo', JSON.stringify({
-          medicineName: mfrForm.medicineName,
-          manufacturer: mfrForm.manufacturerName,
-          batchNumber: mfrForm.batchNumber,
-          manufacturingDate: mfrForm.manufacturingDate,
-          expiryDate: mfrForm.expiryDate,
+          medicineName: mfrForm.medicineName.trim(),
+          manufacturer: mfrForm.manufacturerName.trim(),
+          batchNumber: mfrForm.batchNumber.trim().toUpperCase(),
+          manufacturingDate: mfrForm.manufacturingDate.trim(),
+          expiryDate: mfrForm.expiryDate.trim(),
         }));
       }
 
@@ -166,7 +135,7 @@ export default function App() {
         method: 'POST',
         headers: {
           'x-role': 'MANUFACTURER',
-          'x-participant-name': mfrForm.manufacturerName,
+          'x-participant-name': mfrForm.manufacturerName.trim(),
         },
         body: formData,
       });
@@ -174,14 +143,19 @@ export default function App() {
       const data = await res.json();
       if (res.ok && data.success) {
         setMfrResult(data);
-        setSelectedBatchId(mfrForm.batchNumber);
+        const newBatchId = mfrForm.batchNumber.trim().toUpperCase();
+        setSelectedBatchId(newBatchId);
+        setDistBatchId(newBatchId);
+        setWhlBatchId(newBatchId);
+        setRetBatchId(newBatchId);
+        setPatientBatchId(newBatchId);
         fetchLedger();
       } else {
         setMfrResult(data);
-        setMfrError(data.message || 'Registration flagged or rejected.');
+        setMfrError(data.message || 'Registration flagged or rejected by consensus rules.');
       }
     } catch (err) {
-      setMfrError('Network error connecting to backend server.');
+      setMfrError('Unable to connect to blockchain network. Please verify server connectivity.');
     } finally {
       setMfrLoading(false);
     }
@@ -191,15 +165,15 @@ export default function App() {
   // 2. DISTRIBUTOR STATE & HANDLERS
   // =========================================================================
   const [distBatchId, setDistBatchId] = useState(selectedBatchId || '');
+  const [distPackageExpiry, setDistPackageExpiry] = useState('');
   const [distImageFile, setDistImageFile] = useState(null);
   const [distImagePreview, setDistImagePreview] = useState(null);
   const [distLoading, setDistLoading] = useState(false);
   const [distResult, setDistResult] = useState(null);
   const [distTransferLoading, setDistTransferLoading] = useState(false);
   const [distTransferSuccess, setDistTransferSuccess] = useState(null);
-  const [distNotes, setDistNotes] = useState('Package received in pristine condition; temperature controlled at 20°C.');
+  const [distNotes, setDistNotes] = useState('');
 
-  // Keep batch ID synced when selectedBatchId changes
   useEffect(() => {
     if (selectedBatchId) {
       setDistBatchId(selectedBatchId);
@@ -209,25 +183,23 @@ export default function App() {
     }
   }, [selectedBatchId]);
 
-  const handleDistributorVerify = async (simulatedTamper = false) => {
+  const handleDistributorVerify = async () => {
+    if (!distBatchId.trim()) return;
     setDistLoading(true);
     setDistResult(null);
     setDistTransferSuccess(null);
 
     try {
       const formData = new FormData();
-      formData.append('batchId', distBatchId);
+      formData.append('batchId', distBatchId.trim().toUpperCase());
       formData.append('stage', 'DISTRIBUTOR');
 
       if (distImageFile) {
         formData.append('image', distImageFile);
       } else {
         formData.append('medicineInfo', JSON.stringify({
-          medicineName: 'Piopar-GZ Total',
-          manufacturer: 'Bioaltus Pharmaceuticals Pvt. Ltd.',
-          batchNumber: distBatchId,
-          manufacturingDate: '04/2026',
-          expiryDate: simulatedTamper ? '11/2032' : '03/2028',
+          batchNumber: distBatchId.trim().toUpperCase(),
+          expiryDate: distPackageExpiry.trim() || undefined,
         }));
       }
 
@@ -260,11 +232,11 @@ export default function App() {
           'x-participant-name': 'Apex Global Distribution Network',
         },
         body: JSON.stringify({
-          batchId: distBatchId,
+          batchId: distBatchId.trim().toUpperCase(),
           stage: 'DISTRIBUTOR',
-          sender: distResult?.originalRecord?.manufacturer || 'PharmaCorp Manufacturing Ltd.',
+          sender: distResult?.originalRecord?.manufacturer || 'Authorized Manufacturer',
           receiver: 'Apex Global Distribution Network',
-          notes: distNotes,
+          notes: distNotes.trim() || 'Shipment inspected and verified against immutable manufacturer baseline.',
           verified: distResult?.detailsMatch,
         }),
       });
@@ -273,10 +245,10 @@ export default function App() {
         setDistTransferSuccess(data);
         fetchLedger();
       } else {
-        alert(data.message || 'Transfer failed.');
+        alert(data.message || 'Transfer recording failed.');
       }
     } catch (err) {
-      alert('Failed to connect to blockchain server.');
+      alert('Network error connecting to blockchain gateway.');
     } finally {
       setDistTransferLoading(false);
     }
@@ -286,33 +258,32 @@ export default function App() {
   // 3. WHOLESALER STATE & HANDLERS
   // =========================================================================
   const [whlBatchId, setWhlBatchId] = useState(selectedBatchId || '');
+  const [whlPackageExpiry, setWhlPackageExpiry] = useState('');
   const [whlImageFile, setWhlImageFile] = useState(null);
   const [whlImagePreview, setWhlImagePreview] = useState(null);
   const [whlLoading, setWhlLoading] = useState(false);
   const [whlResult, setWhlResult] = useState(null);
   const [whlTransferLoading, setWhlTransferLoading] = useState(false);
   const [whlTransferSuccess, setWhlTransferSuccess] = useState(null);
-  const [whlNotes, setWhlNotes] = useState('Bulk shipment verified against blockchain baseline; stored in central warehouse.');
+  const [whlNotes, setWhlNotes] = useState('');
 
-  const handleWholesalerVerify = async (simulatedTamper = false) => {
+  const handleWholesalerVerify = async () => {
+    if (!whlBatchId.trim()) return;
     setWhlLoading(true);
     setWhlResult(null);
     setWhlTransferSuccess(null);
 
     try {
       const formData = new FormData();
-      formData.append('batchId', whlBatchId);
+      formData.append('batchId', whlBatchId.trim().toUpperCase());
       formData.append('stage', 'WHOLESALER');
 
       if (whlImageFile) {
         formData.append('image', whlImageFile);
       } else {
         formData.append('medicineInfo', JSON.stringify({
-          medicineName: 'Piopar-GZ Total',
-          manufacturer: 'Bioaltus Pharmaceuticals Pvt. Ltd.',
-          batchNumber: whlBatchId,
-          manufacturingDate: '04/2026',
-          expiryDate: simulatedTamper ? '09/2030' : '03/2028',
+          batchNumber: whlBatchId.trim().toUpperCase(),
+          expiryDate: whlPackageExpiry.trim() || undefined,
         }));
       }
 
@@ -345,11 +316,11 @@ export default function App() {
           'x-participant-name': 'MedSupply Logistics & Wholesale',
         },
         body: JSON.stringify({
-          batchId: whlBatchId,
+          batchId: whlBatchId.trim().toUpperCase(),
           stage: 'WHOLESALER',
           sender: 'Apex Global Distribution Network',
           receiver: 'MedSupply Logistics & Wholesale',
-          notes: whlNotes,
+          notes: whlNotes.trim() || 'Wholesale bulk reception authenticated against blockchain baseline.',
           verified: whlResult?.detailsMatch,
         }),
       });
@@ -358,10 +329,10 @@ export default function App() {
         setWhlTransferSuccess(data);
         fetchLedger();
       } else {
-        alert(data.message || 'Transfer failed.');
+        alert(data.message || 'Transfer recording failed.');
       }
     } catch (err) {
-      alert('Failed to connect to blockchain server.');
+      alert('Network error connecting to blockchain gateway.');
     } finally {
       setWhlTransferLoading(false);
     }
@@ -371,33 +342,32 @@ export default function App() {
   // 4. RETAILER / PHARMACY STATE & HANDLERS
   // =========================================================================
   const [retBatchId, setRetBatchId] = useState(selectedBatchId || '');
+  const [retPackageExpiry, setRetPackageExpiry] = useState('');
   const [retImageFile, setRetImageFile] = useState(null);
   const [retImagePreview, setRetImagePreview] = useState(null);
   const [retLoading, setRetLoading] = useState(false);
   const [retResult, setRetResult] = useState(null);
   const [retTransferLoading, setRetTransferLoading] = useState(false);
   const [retTransferSuccess, setRetTransferSuccess] = useState(null);
-  const [retNotes, setRetNotes] = useState('Stock received at pharmacy branch; seal intact and verified on blockchain.');
+  const [retNotes, setRetNotes] = useState('');
 
-  const handleRetailerVerify = async (simulatedTamper = false) => {
+  const handleRetailerVerify = async () => {
+    if (!retBatchId.trim()) return;
     setRetLoading(true);
     setRetResult(null);
     setRetTransferSuccess(null);
 
     try {
       const formData = new FormData();
-      formData.append('batchId', retBatchId);
+      formData.append('batchId', retBatchId.trim().toUpperCase());
       formData.append('stage', 'RETAILER');
 
       if (retImageFile) {
         formData.append('image', retImageFile);
       } else {
         formData.append('medicineInfo', JSON.stringify({
-          medicineName: 'Piopar-GZ Total',
-          manufacturer: 'Bioaltus Pharmaceuticals Pvt. Ltd.',
-          batchNumber: retBatchId,
-          manufacturingDate: '04/2026',
-          expiryDate: simulatedTamper ? '11/2032' : '03/2028',
+          batchNumber: retBatchId.trim().toUpperCase(),
+          expiryDate: retPackageExpiry.trim() || undefined,
         }));
       }
 
@@ -430,11 +400,11 @@ export default function App() {
           'x-participant-name': 'Apollo Prime Pharmacy',
         },
         body: JSON.stringify({
-          batchId: retBatchId,
+          batchId: retBatchId.trim().toUpperCase(),
           stage: 'RETAILER',
           sender: 'MedSupply Logistics & Wholesale',
           receiver: 'Apollo Prime Pharmacy',
-          notes: retNotes,
+          notes: retNotes.trim() || 'Retail stock verified and received into pharmacy inventory.',
           verified: retResult?.detailsMatch,
         }),
       });
@@ -443,10 +413,10 @@ export default function App() {
         setRetTransferSuccess(data);
         fetchLedger();
       } else {
-        alert(data.message || 'Transfer failed.');
+        alert(data.message || 'Transfer recording failed.');
       }
     } catch (err) {
-      alert('Failed to connect to blockchain server.');
+      alert('Network error connecting to blockchain gateway.');
     } finally {
       setRetTransferLoading(false);
     }
@@ -466,7 +436,7 @@ export default function App() {
     setPatientData(null);
 
     try {
-      const res = await fetch(`${API_BASE}/batch/${encodeURIComponent(patientBatchId.trim())}`);
+      const res = await fetch(`${API_BASE}/batch/${encodeURIComponent(patientBatchId.trim().toUpperCase())}`);
       const data = await res.json();
       setPatientData(data);
     } catch (err) {
@@ -477,7 +447,7 @@ export default function App() {
   };
 
   // =========================================================================
-  // 6. ADMIN PORTAL: MULTI-LAYER SIMULTANEOUS TRACK & TRACE STATE
+  // 6. ADMIN PORTAL STATE & HANDLERS
   // =========================================================================
   const [adminSearchBatch, setAdminSearchBatch] = useState(selectedBatchId || '');
   const [adminBatchData, setAdminBatchData] = useState(null);
@@ -485,10 +455,13 @@ export default function App() {
 
   const fetchAdminBatch = async (batchToQuery) => {
     const bId = (batchToQuery || adminSearchBatch || selectedBatchId || '').trim();
-    if (!bId) return;
+    if (!bId) {
+      setAdminBatchData(null);
+      return;
+    }
     setAdminLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/batch/${encodeURIComponent(bId)}`);
+      const res = await fetch(`${API_BASE}/batch/${encodeURIComponent(bId.toUpperCase())}`);
       const data = await res.json();
       setAdminBatchData(data);
     } catch (err) {
@@ -505,7 +478,6 @@ export default function App() {
     }
   }, [portalMode, selectedBatchId]);
 
-  // Handle generic image select
   const handleImageChange = (e, setFile, setPreview) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -514,7 +486,6 @@ export default function App() {
     }
   };
 
-  // Registered batches list for easy clicking
   const registeredBatchKeys = Object.keys(ledger.registeredBatches || {});
 
   // =========================================================================
@@ -524,15 +495,15 @@ export default function App() {
     if (!result || !result.checks) return null;
     return (
       <div style={{ marginTop: '16px' }}>
-        <h4 style={{ fontSize: '0.95rem', marginBottom: '8px', color: 'var(--text-secondary)' }}>
-          Detailed AI Vision & Blockchain Cross-Check
+        <h4 style={{ fontSize: '0.92rem', marginBottom: '8px', color: 'var(--text-secondary)' }}>
+          Cryptographic Consistency Audit
         </h4>
         <table className="verification-checks-table">
           <thead>
             <tr>
-              <th>Package Field</th>
-              <th>Extracted Value</th>
-              <th>Blockchain Baseline</th>
+              <th>Attribute</th>
+              <th>Scanned / Submitted Value</th>
+              <th>Manufacturer Blockchain Record</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -558,7 +529,7 @@ export default function App() {
               </td>
             </tr>
             <tr>
-              <td>Batch Number</td>
+              <td>Batch Identifier</td>
               <td>{result.extractedDetails?.batchNumber || '—'}</td>
               <td>{result.originalRecord?.batchNumber || '—'}</td>
               <td>
@@ -594,7 +565,7 @@ export default function App() {
           <div className="alert-banner alert-warning" style={{ marginTop: '14px' }}>
             <span style={{ fontSize: '1.2rem' }}>⚠️</span>
             <div>
-              <strong>Security & Consistency Warning:</strong>
+              <strong>Integrity Discrepancy Detected:</strong>
               <ul style={{ margin: '6px 0 0 18px', padding: 0 }}>
                 {result.warnings.map((w, idx) => (
                   <li key={idx}>{w}</li>
@@ -620,14 +591,14 @@ export default function App() {
             </div>
             <div>
               <h1 className="brand-title">PharmaShield AI</h1>
-              <div className="brand-subtitle">Blockchain-Based Medicine Supply Chain Verification</div>
+              <div className="brand-subtitle">Cryptographic Pharmaceutical Supply Chain Provenance</div>
             </div>
           </div>
 
           <div className="participant-badge-container">
             <div className="chain-live-status">
               <div className="pulse-dot"></div>
-              <span>Ledger: {ledger.blockCount} Blocks</span>
+              <span>Ledger: {ledger.blockCount} {ledger.blockCount === 1 ? 'Block' : 'Blocks'}</span>
             </div>
           </div>
         </div>
@@ -638,7 +609,7 @@ export default function App() {
             className={`portal-switch-btn ${portalMode === 'STAKEHOLDER' ? 'active' : ''}`}
             onClick={() => setPortalMode('STAKEHOLDER')}
           >
-            <span>🏢 Stakeholder Supply Chain Portal</span>
+            <span>Supply Chain Stakeholder Portal</span>
           </button>
           <button
             className={`portal-switch-btn admin-active ${portalMode === 'ADMIN' ? 'active admin-active' : ''}`}
@@ -647,7 +618,7 @@ export default function App() {
               fetchAdminBatch(selectedBatchId);
             }}
           >
-            <span>🛡️ Central Admin & Multi-Layer Audit Portal</span>
+            <span>Central Audit & Provenance Center</span>
           </button>
         </div>
       </header>
@@ -655,7 +626,7 @@ export default function App() {
       {/* Main Container */}
       <main className="main-content">
         {/* ===================================================================
-            FRONTEND 1: STAKEHOLDER PORTAL (Role-Based Login / View)
+            FRONTEND 1: STAKEHOLDER PORTAL (Role-Based Workspace)
             =================================================================== */}
         {portalMode === 'STAKEHOLDER' && (
           <div>
@@ -665,36 +636,36 @@ export default function App() {
                 className={`role-tab-btn mfr ${stakeholderRole === 'MANUFACTURER' ? 'active mfr' : ''}`}
                 onClick={() => setStakeholderRole('MANUFACTURER')}
               >
-                <span>🏭 Manufacturer</span>
-                <span className="tab-badge">Stage 1</span>
+                <span>Manufacturer</span>
+                <span className="tab-badge">Production</span>
               </button>
               <button
                 className={`role-tab-btn dist ${stakeholderRole === 'DISTRIBUTOR' ? 'active dist' : ''}`}
                 onClick={() => setStakeholderRole('DISTRIBUTOR')}
               >
-                <span>🚚 Distributor</span>
-                <span className="tab-badge">Stage 2</span>
+                <span>Distributor</span>
+                <span className="tab-badge">Logistics</span>
               </button>
               <button
                 className={`role-tab-btn whl ${stakeholderRole === 'WHOLESALER' ? 'active whl' : ''}`}
                 onClick={() => setStakeholderRole('WHOLESALER')}
               >
-                <span>🏢 Wholesaler</span>
-                <span className="tab-badge">Stage 3</span>
+                <span>Wholesaler</span>
+                <span className="tab-badge">Distribution Hub</span>
               </button>
               <button
                 className={`role-tab-btn ret ${stakeholderRole === 'RETAILER' ? 'active ret' : ''}`}
                 onClick={() => setStakeholderRole('RETAILER')}
               >
-                <span>🏪 Retailer / Pharmacy</span>
-                <span className="tab-badge">Stage 4</span>
+                <span>Retail Pharmacy</span>
+                <span className="tab-badge">Dispensing</span>
               </button>
               <button
                 className={`role-tab-btn pat ${stakeholderRole === 'PATIENT' ? 'active pat' : ''}`}
                 onClick={() => setStakeholderRole('PATIENT')}
               >
-                <span>🩺 Patient / Consumer</span>
-                <span className="tab-badge">Stage 5</span>
+                <span>Patient / Consumer</span>
+                <span className="tab-badge">Verification</span>
               </button>
             </div>
 
@@ -724,32 +695,17 @@ export default function App() {
             {stakeholderRole === 'MANUFACTURER' && (
               <div>
                 <div className="card" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.06) 0%, rgba(18,24,38,0.7) 100%)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                    <div>
-                      <h2 style={{ fontSize: '1.3rem' }}>🏭 Manufacturer Portal: Batch Production & Genesis Registration</h2>
-                      <p className="card-desc">
-                        Register newly manufactured pharmaceutical batches directly onto the immutable blockchain ledger with a cryptographic SHA-256 fingerprint.
-                      </p>
-                    </div>
-                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                      <button className="btn btn-secondary" onClick={loadManufacturerSample}>
-                        <span>⚡ Demo Preset</span>
-                      </button>
-                      <button className="btn btn-secondary" onClick={loadPan40Sample}>
-                        <span>📷 Match Sample Image (PAN 40)</span>
-                      </button>
-                    </div>
-                  </div>
+                  <h2 style={{ fontSize: '1.25rem', marginBottom: '4px' }}>Pharmaceutical Manufacturing & Batch Serialization</h2>
+                  <p className="card-desc">
+                    Register genuine pharmaceutical batches onto the decentralized blockchain. Generates an immutable SHA-256 fingerprint that acts as the single source of truth across the supply chain.
+                  </p>
                 </div>
 
                 <div className="card">
                   <div className="card-header">
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span className="role-pill role-mfr">Stage 1: Production</span>
-                        <h2 className="card-title">Register Medicine Batch</h2>
-                      </div>
-                      <p className="card-desc">Source of Truth: Upload package image and register batch details on the blockchain.</p>
+                      <h2 className="card-title">Register New Batch</h2>
+                      <p className="card-desc">Provide package specifications and packaging documentation.</p>
                     </div>
                   </div>
 
@@ -762,6 +718,7 @@ export default function App() {
                             type="text"
                             value={mfrForm.medicineName}
                             onChange={(e) => setMfrForm({ ...mfrForm, medicineName: e.target.value })}
+                            placeholder="e.g. Amoxicillin Trihydrate 500mg"
                             required
                           />
                         </div>
@@ -772,23 +729,25 @@ export default function App() {
                             type="text"
                             value={mfrForm.batchNumber}
                             onChange={(e) => setMfrForm({ ...mfrForm, batchNumber: e.target.value })}
+                            placeholder="e.g. BATCH-2026-A101"
                             required
                           />
                         </div>
 
                         <div className="form-group">
-                          <label className="form-label">Manufacturing Unit / Company *</label>
+                          <label className="form-label">Manufacturing Entity *</label>
                           <input
                             type="text"
                             value={mfrForm.manufacturerName}
                             onChange={(e) => setMfrForm({ ...mfrForm, manufacturerName: e.target.value })}
+                            placeholder="e.g. Novartis Pharmaceuticals Ltd."
                             required
                           />
                         </div>
 
                         <div className="grid-2">
                           <div className="form-group">
-                            <label className="form-label">Mfg Date *</label>
+                            <label className="form-label">Manufacturing Date *</label>
                             <input
                               type="text"
                               value={mfrForm.manufacturingDate}
@@ -798,7 +757,7 @@ export default function App() {
                             />
                           </div>
                           <div className="form-group">
-                            <label className="form-label">Expiry Date *</label>
+                            <label className="form-label">Expiration Date *</label>
                             <input
                               type="text"
                               value={mfrForm.expiryDate}
@@ -810,18 +769,19 @@ export default function App() {
                         </div>
 
                         <div className="form-group">
-                          <label className="form-label">Production Quantity (Units)</label>
+                          <label className="form-label">Batch Quantity (Units)</label>
                           <input
                             type="number"
                             value={mfrForm.quantity}
                             onChange={(e) => setMfrForm({ ...mfrForm, quantity: e.target.value })}
+                            placeholder="e.g. 5000"
                           />
                         </div>
                       </div>
 
                       <div>
                         <div className="form-group">
-                          <label className="form-label">Physical Packaging Verification Photo</label>
+                          <label className="form-label">Packaging Inspection Image</label>
                           <div
                             className="file-dropzone"
                             onClick={() => document.getElementById('mfr-file-input').click()}
@@ -837,14 +797,14 @@ export default function App() {
                               <div>
                                 <img src={mfrImagePreview} alt="Preview" className="preview-img" />
                                 <div style={{ marginTop: '8px', fontSize: '0.8rem', color: 'var(--accent-emerald)' }}>
-                                  ✓ Package image attached
+                                  ✓ Packaging documentation attached
                                 </div>
                               </div>
                             ) : (
                               <div>
-                                <div style={{ fontSize: '2rem', marginBottom: '8px' }}>📸</div>
-                                <div style={{ fontWeight: 600 }}>Click to attach package photo</div>
-                                <div className="form-hint">AI Vision / OCR will cross-check image against form details</div>
+                                <div style={{ fontSize: '1.8rem', marginBottom: '8px' }}>📸</div>
+                                <div style={{ fontWeight: 600 }}>Attach Packaging Photograph</div>
+                                <div className="form-hint">AI Vision / OCR verifies text against entered registration parameters</div>
                               </div>
                             )}
                           </div>
@@ -857,7 +817,7 @@ export default function App() {
                             style={{ width: '100%', padding: '14px' }}
                             disabled={mfrLoading}
                           >
-                            {mfrLoading ? 'Registering on Blockchain...' : '🔐 Commit Batch to Blockchain'}
+                            {mfrLoading ? 'Registering on Blockchain...' : 'Commit Batch to Ledger'}
                           </button>
                         </div>
                       </div>
@@ -870,9 +830,9 @@ export default function App() {
                         <div className="alert-banner alert-success">
                           <span style={{ fontSize: '1.4rem' }}>🛡️</span>
                           <div style={{ width: '100%' }}>
-                            <strong>Batch {mfrResult.batchId} Successfully Registered on Blockchain!</strong>
+                            <strong>Batch {mfrResult.batchId} Successfully Committed to Blockchain</strong>
                             <div style={{ marginTop: '4px', fontSize: '0.88rem' }}>
-                              Block #{mfrResult.blockIndex} created. Cryptographic Batch SHA-256 fingerprint saved.
+                              Genesis entry confirmed in Block #{mfrResult.blockIndex}. Cryptographic fingerprint established.
                             </div>
                             <div className="hash-box" style={{ marginTop: '8px' }}>
                               <span>Data Hash: {mfrResult.dataHash}</span>
@@ -886,8 +846,8 @@ export default function App() {
                         <div className="alert-banner alert-danger">
                           <span style={{ fontSize: '1.4rem' }}>🚨</span>
                           <div>
-                            <strong>Registration Flagged or Rejected:</strong>
-                            <div>{mfrResult.message}</div>
+                            <strong>Registration Flagged or Rejected</strong>
+                            <div>{mfrResult.message || mfrError}</div>
                           </div>
                         </div>
                       )}
@@ -901,70 +861,66 @@ export default function App() {
             {stakeholderRole === 'DISTRIBUTOR' && (
               <div>
                 <div className="card" style={{ background: 'linear-gradient(180deg, rgba(6,182,212,0.06) 0%, rgba(18,24,38,0.7) 100%)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                    <div>
-                      <h2 style={{ fontSize: '1.3rem' }}>🚚 Distributor Portal: Regional Logistics Intake & Verification</h2>
-                      <p className="card-desc">
-                        Inspect batches received from the manufacturer. Cross-verify against the manufacturer’s immutable blockchain record before accepting transfer to Wholesaler.
-                      </p>
-                    </div>
-                  </div>
+                  <h2 style={{ fontSize: '1.25rem', marginBottom: '4px' }}>Distribution Logistics Intake & Verification</h2>
+                  <p className="card-desc">
+                    Authenticate physical consignments arriving from production units. Discrepancies between physical packaging and registered manufacturer baselines will block transfer authorization.
+                  </p>
                 </div>
 
                 <div className="card">
                   <div className="card-header">
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span className="role-pill role-ret">Stage 2: Regional Distributor</span>
-                        <h2 className="card-title">Intake Verification & Transfer to Wholesaler</h2>
-                      </div>
-                      <p className="card-desc">Authorized Participant: Apex Global Distribution Network</p>
+                      <h2 className="card-title">Consignment Intake Inspection</h2>
+                      <p className="card-desc">Operating Node: Apex Global Distribution Network</p>
                     </div>
                   </div>
 
                   <div className="grid-2">
                     <div>
                       <div className="form-group">
-                        <label className="form-label">Batch ID to Inspect *</label>
+                        <label className="form-label">Batch ID to Verify *</label>
                         <input
                           type="text"
                           value={distBatchId}
                           onChange={(e) => setDistBatchId(e.target.value)}
-                          placeholder="e.g. BATCH-2026-X1"
+                          placeholder="e.g. BATCH-2026-A101"
                         />
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">Transfer Shipment Notes</label>
+                        <label className="form-label">Observed Expiry Date on Physical Pack (Optional Check)</label>
+                        <input
+                          type="text"
+                          value={distPackageExpiry}
+                          onChange={(e) => setDistPackageExpiry(e.target.value)}
+                          placeholder="MM/YYYY (leave blank to verify via image)"
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">Shipment & Logistics Observations</label>
                         <input
                           type="text"
                           value={distNotes}
                           onChange={(e) => setDistNotes(e.target.value)}
+                          placeholder="e.g. Temperature monitoring verified at 20°C, seal intact."
                         />
                       </div>
 
-                      <div style={{ display: 'flex', gap: '10px', marginTop: '16px', flexWrap: 'wrap' }}>
+                      <div style={{ marginTop: '16px' }}>
                         <button
                           className="btn btn-primary"
-                          onClick={() => handleDistributorVerify(false)}
-                          disabled={distLoading || !distBatchId}
+                          onClick={handleDistributorVerify}
+                          disabled={distLoading || !distBatchId.trim()}
                         >
-                          {distLoading ? 'Verifying...' : '🔍 Verify Against Blockchain Baseline'}
-                        </button>
-                        <button
-                          className="btn btn-secondary"
-                          onClick={() => handleDistributorVerify(true)}
-                          disabled={distLoading || !distBatchId}
-                          title="Simulate altered expiry date to test anti-tampering"
-                        >
-                          ⚡ Test Altered Expiry Tamper
+                          {distLoading ? 'Verifying...' : 'Authenticate Against Blockchain Baseline'}
                         </button>
                       </div>
                     </div>
 
                     <div>
                       <div className="form-group">
-                        <label className="form-label">Upload Package Photo (Optional)</label>
+                        <label className="form-label">Consignment Packaging Photograph</label>
                         <div
                           className="file-dropzone"
                           onClick={() => document.getElementById('dist-file-input').click()}
@@ -980,14 +936,14 @@ export default function App() {
                             <div>
                               <img src={distImagePreview} alt="Preview" className="preview-img" />
                               <div style={{ marginTop: '8px', fontSize: '0.8rem', color: 'var(--accent-cyan)' }}>
-                                ✓ Package photo attached
+                                ✓ Image attached for automated vision cross-check
                               </div>
                             </div>
                           ) : (
                             <div>
-                              <div style={{ fontSize: '2rem', marginBottom: '8px' }}>📷</div>
-                              <div style={{ fontWeight: 600 }}>Click to attach package photo</div>
-                              <div className="form-hint">AI Vision extracts text and verifies against manufacturer record</div>
+                              <div style={{ fontSize: '1.8rem', marginBottom: '8px' }}>📷</div>
+                              <div style={{ fontWeight: 600 }}>Attach Packaging Image</div>
+                              <div className="form-hint">AI Vision extracts text and verifies against registered parameters</div>
                             </div>
                           )}
                         </div>
@@ -1002,15 +958,15 @@ export default function App() {
                         <div className="alert-banner alert-success">
                           <span style={{ fontSize: '1.4rem' }}>✅</span>
                           <div style={{ width: '100%' }}>
-                            <strong>Verification Passed: Package Authenticity 100% Confirmed</strong>
-                            <div>All package attributes exactly match the manufacturer baseline recorded on the blockchain.</div>
+                            <strong>Consignment Authenticated: Verification Successful</strong>
+                            <div>All inspected packaging parameters match the immutable manufacturer baseline on the ledger.</div>
                             <div style={{ marginTop: '12px' }}>
                               <button
                                 className="btn btn-accent"
                                 onClick={handleDistributorTransfer}
                                 disabled={distTransferLoading}
                               >
-                                {distTransferLoading ? 'Recording Transfer...' : '📦 Record Distributor Transfer on Blockchain'}
+                                {distTransferLoading ? 'Recording Transfer...' : 'Record Distribution Transfer on Blockchain'}
                               </button>
                             </div>
                           </div>
@@ -1019,8 +975,8 @@ export default function App() {
                         <div className="alert-banner alert-danger">
                           <span style={{ fontSize: '1.4rem' }}>🚨</span>
                           <div>
-                            <strong>Verification Failed / Review Required:</strong>
-                            <div>Discrepancy detected between physical package and manufacturer blockchain baseline. Inconsistent batches cannot be recorded as verified transfers.</div>
+                            <strong>Verification Failed / Security Review Required</strong>
+                            <div>Discrepancy detected between physical packaging and registered manufacturer record. Transfer authorization withheld.</div>
                           </div>
                         </div>
                       )}
@@ -1031,7 +987,7 @@ export default function App() {
                         <div className="alert-banner alert-success" style={{ marginTop: '16px' }}>
                           <span style={{ fontSize: '1.4rem' }}>⛓️</span>
                           <div>
-                            <strong>Distributor Transfer Block #{distTransferSuccess.blockIndex} Appended to Blockchain!</strong>
+                            <strong>Transfer Block #{distTransferSuccess.blockIndex} Appended to Ledger</strong>
                             <div className="hash-box" style={{ marginTop: '6px' }}>
                               <span>Block Hash: {distTransferSuccess.blockHash}</span>
                             </div>
@@ -1048,24 +1004,17 @@ export default function App() {
             {stakeholderRole === 'WHOLESALER' && (
               <div>
                 <div className="card" style={{ background: 'linear-gradient(180deg, rgba(139,92,246,0.06) 0%, rgba(18,24,38,0.7) 100%)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                    <div>
-                      <h2 style={{ fontSize: '1.3rem' }}>🏢 Wholesaler Portal: Bulk Storage & Inspection</h2>
-                      <p className="card-desc">
-                        Verify medicine authenticity before accepting into wholesale distribution. Any tampered dates or counterfeit batches are blocked from transfer.
-                      </p>
-                    </div>
-                  </div>
+                  <h2 style={{ fontSize: '1.25rem', marginBottom: '4px' }}>Wholesale Warehouse Intake & Inventory Audit</h2>
+                  <p className="card-desc">
+                    Conduct wholesale intake audits before distribution to pharmacy networks. Confirms chain-of-custody integrity from distribution partners.
+                  </p>
                 </div>
 
                 <div className="card">
                   <div className="card-header">
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span className="role-pill role-whl">Stage 3: Wholesaler</span>
-                        <h2 className="card-title">Bulk Inspection & Transfer to Pharmacy</h2>
-                      </div>
-                      <p className="card-desc">Authorized Participant: MedSupply Logistics & Wholesale</p>
+                      <h2 className="card-title">Wholesale Inventory Verification</h2>
+                      <p className="card-desc">Operating Node: MedSupply Logistics & Wholesale</p>
                     </div>
                   </div>
 
@@ -1077,7 +1026,17 @@ export default function App() {
                           type="text"
                           value={whlBatchId}
                           onChange={(e) => setWhlBatchId(e.target.value)}
-                          placeholder="e.g. BATCH-2026-X1"
+                          placeholder="e.g. BATCH-2026-A101"
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">Observed Expiry Date on Physical Pack (Optional Check)</label>
+                        <input
+                          type="text"
+                          value={whlPackageExpiry}
+                          onChange={(e) => setWhlPackageExpiry(e.target.value)}
+                          placeholder="MM/YYYY (leave blank to verify via image)"
                         />
                       </div>
 
@@ -1087,31 +1046,24 @@ export default function App() {
                           type="text"
                           value={whlNotes}
                           onChange={(e) => setWhlNotes(e.target.value)}
+                          placeholder="e.g. Received in bulk shipment, quality seals verified."
                         />
                       </div>
 
-                      <div style={{ display: 'flex', gap: '10px', marginTop: '16px', flexWrap: 'wrap' }}>
+                      <div style={{ marginTop: '16px' }}>
                         <button
                           className="btn btn-primary"
-                          onClick={() => handleWholesalerVerify(false)}
-                          disabled={whlLoading || !whlBatchId}
+                          onClick={handleWholesalerVerify}
+                          disabled={whlLoading || !whlBatchId.trim()}
                         >
-                          {whlLoading ? 'Verifying...' : '🔍 Verify Against Blockchain Baseline'}
-                        </button>
-                        <button
-                          className="btn btn-secondary"
-                          onClick={() => handleWholesalerVerify(true)}
-                          disabled={whlLoading || !whlBatchId}
-                          title="Simulate altered expiry date to test anti-tampering"
-                        >
-                          ⚡ Test Altered Expiry Tamper
+                          {whlLoading ? 'Verifying...' : 'Authenticate Against Blockchain Baseline'}
                         </button>
                       </div>
                     </div>
 
                     <div>
                       <div className="form-group">
-                        <label className="form-label">Upload Package Photo (Optional)</label>
+                        <label className="form-label">Warehouse Packaging Photograph</label>
                         <div
                           className="file-dropzone"
                           onClick={() => document.getElementById('whl-file-input').click()}
@@ -1127,14 +1079,14 @@ export default function App() {
                             <div>
                               <img src={whlImagePreview} alt="Preview" className="preview-img" />
                               <div style={{ marginTop: '8px', fontSize: '0.8rem', color: 'var(--accent-purple)' }}>
-                                ✓ Package photo attached
+                                ✓ Image attached for automated vision cross-check
                               </div>
                             </div>
                           ) : (
                             <div>
-                              <div style={{ fontSize: '2rem', marginBottom: '8px' }}>📷</div>
-                              <div style={{ fontWeight: 600 }}>Click to attach package photo</div>
-                              <div className="form-hint">AI Vision extracts text and verifies against manufacturer record</div>
+                              <div style={{ fontSize: '1.8rem', marginBottom: '8px' }}>📷</div>
+                              <div style={{ fontWeight: 600 }}>Attach Packaging Image</div>
+                              <div className="form-hint">AI Vision extracts text and verifies against registered parameters</div>
                             </div>
                           )}
                         </div>
@@ -1149,15 +1101,15 @@ export default function App() {
                         <div className="alert-banner alert-success">
                           <span style={{ fontSize: '1.4rem' }}>✅</span>
                           <div style={{ width: '100%' }}>
-                            <strong>Verification Passed: Authentic Wholesale Batch Confirmed</strong>
-                            <div>All package details match manufacturer record. Authorized to proceed with pharmacy dispatch.</div>
+                            <strong>Consignment Authenticated: Verification Successful</strong>
+                            <div>All inspected packaging parameters match the immutable manufacturer baseline on the ledger.</div>
                             <div style={{ marginTop: '12px' }}>
                               <button
                                 className="btn btn-accent"
                                 onClick={handleWholesalerTransfer}
                                 disabled={whlTransferLoading}
                               >
-                                {whlTransferLoading ? 'Recording Transfer...' : '📦 Record Wholesaler Transfer on Blockchain'}
+                                {whlTransferLoading ? 'Recording Transfer...' : 'Record Wholesale Transfer on Blockchain'}
                               </button>
                             </div>
                           </div>
@@ -1166,8 +1118,8 @@ export default function App() {
                         <div className="alert-banner alert-danger">
                           <span style={{ fontSize: '1.4rem' }}>🚨</span>
                           <div>
-                            <strong>Verification Failed / Review Required:</strong>
-                            <div>Discrepancy detected between physical package and manufacturer blockchain baseline. Inconsistent batches cannot be recorded as verified transfers.</div>
+                            <strong>Verification Failed / Security Review Required</strong>
+                            <div>Discrepancy detected between physical packaging and registered manufacturer record. Transfer authorization withheld.</div>
                           </div>
                         </div>
                       )}
@@ -1178,7 +1130,7 @@ export default function App() {
                         <div className="alert-banner alert-success" style={{ marginTop: '16px' }}>
                           <span style={{ fontSize: '1.4rem' }}>⛓️</span>
                           <div>
-                            <strong>Wholesaler Transfer Block #{whlTransferSuccess.blockIndex} Appended to Blockchain!</strong>
+                            <strong>Transfer Block #{whlTransferSuccess.blockIndex} Appended to Ledger</strong>
                             <div className="hash-box" style={{ marginTop: '6px' }}>
                               <span>Block Hash: {whlTransferSuccess.blockHash}</span>
                             </div>
@@ -1195,26 +1147,17 @@ export default function App() {
             {stakeholderRole === 'RETAILER' && (
               <div>
                 <div className="card" style={{ background: 'linear-gradient(180deg, rgba(245,158,11,0.06) 0%, rgba(18,24,38,0.7) 100%)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                    <div>
-                      <h2 style={{ fontSize: '1.3rem' }}>🏪 Retailer / Pharmacy Portal: Stock Intake & Patient Dispense</h2>
-                      <p className="card-desc">
-                        Verify medicine batches received from wholesalers before stocking on pharmacy shelves. Ensures only genuine pharmaceuticals reach consumers.
-                      </p>
-                    </div>
-                  </div>
+                  <h2 style={{ fontSize: '1.25rem', marginBottom: '4px' }}>Pharmacy Stock Intake & Prescription Dispensing</h2>
+                  <p className="card-desc">
+                    Verify stock authenticity before dispensing to patients. Guarantees legitimate chain-of-custody for prescription pharmaceuticals.
+                  </p>
                 </div>
 
                 <div className="card">
                   <div className="card-header">
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span className="role-pill role-mfr" style={{ color: '#f59e0b', borderColor: 'rgba(245,158,11,0.4)', background: 'rgba(245,158,11,0.1)' }}>
-                          Stage 4: Pharmacy Retailer
-                        </span>
-                        <h2 className="card-title">Pharmacy Intake Verification</h2>
-                      </div>
-                      <p className="card-desc">Authorized Participant: Apollo Prime Pharmacy</p>
+                      <h2 className="card-title">Retail Pharmacy Intake</h2>
+                      <p className="card-desc">Operating Node: Apollo Prime Pharmacy</p>
                     </div>
                   </div>
 
@@ -1226,41 +1169,44 @@ export default function App() {
                           type="text"
                           value={retBatchId}
                           onChange={(e) => setRetBatchId(e.target.value)}
-                          placeholder="e.g. BATCH-2026-X1"
+                          placeholder="e.g. BATCH-2026-A101"
                         />
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">Pharmacy Intake Notes</label>
+                        <label className="form-label">Observed Expiry Date on Physical Pack (Optional Check)</label>
+                        <input
+                          type="text"
+                          value={retPackageExpiry}
+                          onChange={(e) => setRetPackageExpiry(e.target.value)}
+                          placeholder="MM/YYYY (leave blank to verify via image)"
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">Pharmacy Shelf / Storage Notes</label>
                         <input
                           type="text"
                           value={retNotes}
                           onChange={(e) => setRetNotes(e.target.value)}
+                          placeholder="e.g. Retail inventory cataloged, stored in dispensary."
                         />
                       </div>
 
-                      <div style={{ display: 'flex', gap: '10px', marginTop: '16px', flexWrap: 'wrap' }}>
+                      <div style={{ marginTop: '16px' }}>
                         <button
                           className="btn btn-primary"
-                          onClick={() => handleRetailerVerify(false)}
-                          disabled={retLoading || !retBatchId}
+                          onClick={handleRetailerVerify}
+                          disabled={retLoading || !retBatchId.trim()}
                         >
-                          {retLoading ? 'Verifying...' : '🔍 Verify Against Blockchain Baseline'}
-                        </button>
-                        <button
-                          className="btn btn-secondary"
-                          onClick={() => handleRetailerVerify(true)}
-                          disabled={retLoading || !retBatchId}
-                          title="Simulate altered expiry date to test anti-tampering"
-                        >
-                          ⚡ Test Altered Expiry Tamper
+                          {retLoading ? 'Verifying...' : 'Authenticate Against Blockchain Baseline'}
                         </button>
                       </div>
                     </div>
 
                     <div>
                       <div className="form-group">
-                        <label className="form-label">Upload Package Photo (Optional)</label>
+                        <label className="form-label">Dispensing Package Photograph</label>
                         <div
                           className="file-dropzone"
                           onClick={() => document.getElementById('ret-file-input').click()}
@@ -1276,14 +1222,14 @@ export default function App() {
                             <div>
                               <img src={retImagePreview} alt="Preview" className="preview-img" />
                               <div style={{ marginTop: '8px', fontSize: '0.8rem', color: 'var(--accent-amber)' }}>
-                                ✓ Package photo attached
+                                ✓ Image attached for automated vision cross-check
                               </div>
                             </div>
                           ) : (
                             <div>
-                              <div style={{ fontSize: '2rem', marginBottom: '8px' }}>📷</div>
-                              <div style={{ fontWeight: 600 }}>Click to attach package photo</div>
-                              <div className="form-hint">AI Vision extracts text and verifies against manufacturer record</div>
+                              <div style={{ fontSize: '1.8rem', marginBottom: '8px' }}>📷</div>
+                              <div style={{ fontWeight: 600 }}>Attach Packaging Image</div>
+                              <div className="form-hint">AI Vision extracts text and verifies against registered parameters</div>
                             </div>
                           )}
                         </div>
@@ -1298,15 +1244,15 @@ export default function App() {
                         <div className="alert-banner alert-success">
                           <span style={{ fontSize: '1.4rem' }}>✅</span>
                           <div style={{ width: '100%' }}>
-                            <strong>Verification Passed: Authentic Pharmacy Stock Confirmed</strong>
-                            <div>All package details match manufacturer record. Medicine approved for retail shelf and dispensing.</div>
+                            <strong>Stock Authenticated: Verification Successful</strong>
+                            <div>All inspected packaging parameters match the immutable manufacturer baseline on the ledger.</div>
                             <div style={{ marginTop: '12px' }}>
                               <button
                                 className="btn btn-accent"
                                 onClick={handleRetailerTransfer}
                                 disabled={retTransferLoading}
                               >
-                                {retTransferLoading ? 'Recording Receipt...' : '📦 Record Pharmacy Receipt on Blockchain'}
+                                {retTransferLoading ? 'Recording Receipt...' : 'Record Pharmacy Receipt on Blockchain'}
                               </button>
                             </div>
                           </div>
@@ -1315,8 +1261,8 @@ export default function App() {
                         <div className="alert-banner alert-danger">
                           <span style={{ fontSize: '1.4rem' }}>🚨</span>
                           <div>
-                            <strong>Verification Failed / Review Required:</strong>
-                            <div>Discrepancy detected between physical package and manufacturer blockchain baseline. Inconsistent batches cannot be recorded as verified transfers.</div>
+                            <strong>Verification Failed / Security Review Required</strong>
+                            <div>Discrepancy detected between physical packaging and registered manufacturer record. Transfer authorization withheld.</div>
                           </div>
                         </div>
                       )}
@@ -1327,7 +1273,7 @@ export default function App() {
                         <div className="alert-banner alert-success" style={{ marginTop: '16px' }}>
                           <span style={{ fontSize: '1.4rem' }}>⛓️</span>
                           <div>
-                            <strong>Pharmacy Receipt Block #{retTransferSuccess.blockIndex} Appended to Blockchain!</strong>
+                            <strong>Receipt Block #{retTransferSuccess.blockIndex} Appended to Ledger</strong>
                             <div className="hash-box" style={{ marginTop: '6px' }}>
                               <span>Block Hash: {retTransferSuccess.blockHash}</span>
                             </div>
@@ -1345,27 +1291,27 @@ export default function App() {
               <div>
                 <div className="patient-shield-hero">
                   <div className="shield-icon-large">🛡️</div>
-                  <h2 className="shield-verdict-title">Consumer Medicine Authenticity Verification</h2>
+                  <h2 className="shield-verdict-title">Pharmaceutical Authenticity Verification</h2>
                   <p style={{ maxWidth: '640px', margin: '0 auto', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-                    Enter your package Batch ID to instantly authenticate your medicine against the immutable blockchain registry and view its full supply chain journey.
+                    Enter the Batch ID stamped on your medicine carton or blister foil to verify manufacturer registration and validate complete chain-of-custody.
                   </p>
                 </div>
 
                 <div className="card" style={{ maxWidth: '780px', margin: '0 auto 24px' }}>
                   <form onSubmit={handlePatientVerify}>
                     <div className="form-group">
-                      <label className="form-label">Medicine Package Batch ID / Lot Number</label>
+                      <label className="form-label">Batch ID / Lot Number</label>
                       <div style={{ display: 'flex', gap: '10px' }}>
                         <input
                           type="text"
                           value={patientBatchId}
                           onChange={(e) => setPatientBatchId(e.target.value)}
-                          placeholder="e.g. BATCH-123, BATCH-2026-X1"
+                          placeholder="e.g. BATCH-2026-A101"
                           style={{ flex: 1, fontSize: '1rem', padding: '12px 16px' }}
                           required
                         />
                         <button type="submit" className="btn btn-primary" disabled={patientLoading}>
-                          {patientLoading ? 'Verifying...' : '🔍 Check Authenticity'}
+                          {patientLoading ? 'Verifying...' : 'Verify Authenticity'}
                         </button>
                       </div>
                     </div>
@@ -1379,9 +1325,9 @@ export default function App() {
                           <div className="alert-banner alert-success">
                             <span style={{ fontSize: '1.8rem' }}>✅</span>
                             <div>
-                              <strong style={{ fontSize: '1.1rem' }}>100% Genuine Pharmaceutical Medicine</strong>
+                              <strong style={{ fontSize: '1.1rem' }}>Genuine Pharmaceutical Product Confirmed</strong>
                               <div style={{ marginTop: '4px' }}>
-                                Verified on the decentralized PharmaShield AI blockchain ledger.
+                                Validated against manufacturer baseline recorded on the decentralized PharmaShield AI blockchain ledger.
                               </div>
                             </div>
                           </div>
@@ -1389,25 +1335,25 @@ export default function App() {
                           <div className="grid-2" style={{ marginTop: '20px' }}>
                             <div className="card" style={{ background: 'rgba(0,0,0,0.2)' }}>
                               <h3 style={{ fontSize: '1rem', marginBottom: '12px', color: 'var(--accent-emerald)' }}>
-                                💊 Medicine Specifications
+                                Product Specifications
                               </h3>
                               <div style={{ fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <div><strong>Medicine:</strong> {patientData.originalRecord?.medicineName}</div>
                                 <div><strong>Manufacturer:</strong> {patientData.originalRecord?.manufacturer}</div>
-                                <div><strong>Batch ID:</strong> {patientData.batchId}</div>
-                                <div><strong>Mfg Date:</strong> {patientData.originalRecord?.manufacturingDate}</div>
+                                <div><strong>Batch Identifier:</strong> {patientData.batchId}</div>
+                                <div><strong>Manufacturing Date:</strong> {patientData.originalRecord?.manufacturingDate}</div>
                                 <div><strong>Expiry Date:</strong> {patientData.originalRecord?.expiryDate}</div>
                               </div>
                             </div>
 
                             <div className="card" style={{ background: 'rgba(0,0,0,0.2)' }}>
                               <h3 style={{ fontSize: '1rem', marginBottom: '12px', color: 'var(--accent-cyan)' }}>
-                                📜 Cryptographic Pedigree
+                                Cryptographic Integrity
                               </h3>
                               <div style={{ fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <div><strong>Current Stage:</strong> {patientData.currentStage}</div>
-                                <div><strong>Supply Chain Steps:</strong> {patientData.eventCount} Verified Events</div>
-                                <div><strong>Registration Block:</strong> #{patientData.originalRecord?.blockIndex}</div>
+                                <div><strong>Current Custody Stage:</strong> {patientData.currentStage}</div>
+                                <div><strong>Verified Checkpoints:</strong> {patientData.eventCount} Transactions</div>
+                                <div><strong>Origin Block:</strong> #{patientData.originalRecord?.blockIndex}</div>
                                 <div className="hash-box" style={{ fontSize: '0.72rem' }}>
                                   <span>Fingerprint: {patientData.originalRecord?.dataHash}</span>
                                 </div>
@@ -1417,7 +1363,7 @@ export default function App() {
 
                           {/* Chronological Journey */}
                           <div style={{ marginTop: '20px' }}>
-                            <h3 style={{ fontSize: '1rem', marginBottom: '12px' }}>Verified Supply Chain Timeline</h3>
+                            <h3 style={{ fontSize: '1rem', marginBottom: '12px' }}>Supply Chain Provenance Log</h3>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                               {patientData.history?.map((step, idx) => (
                                 <div key={idx} className="block-item" style={{ padding: '14px 18px' }}>
@@ -1444,9 +1390,9 @@ export default function App() {
                         <div className="alert-banner alert-danger">
                           <span style={{ fontSize: '1.8rem' }}>🚨</span>
                           <div>
-                            <strong style={{ fontSize: '1.1rem' }}>WARNING: Unregistered or Counterfeit Batch</strong>
+                            <strong style={{ fontSize: '1.1rem' }}>Unregistered Batch Alert</strong>
                             <div>
-                              This batch ID was NOT found in the blockchain manufacturer registry. Do not consume without consulting your pharmacist or healthcare provider.
+                              This batch ID was not found in the verified pharmaceutical ledger. Please exercise caution and report suspicious packaging to health authorities.
                             </div>
                           </div>
                         </div>
@@ -1468,21 +1414,18 @@ export default function App() {
             <div className="card" style={{ background: 'linear-gradient(180deg, rgba(139,92,246,0.08) 0%, rgba(18,24,38,0.7) 100%)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span className="role-pill role-whl">Central Admin</span>
-                    <h2 style={{ fontSize: '1.35rem' }}>Multi-Layer Supply Chain Audit & Track-and-Trace</h2>
-                  </div>
+                  <h2 style={{ fontSize: '1.35rem', marginBottom: '4px' }}>Multi-Layer Supply Chain Audit & Track-and-Trace</h2>
                   <p className="card-desc">
-                    Simultaneously monitor batch details and integrity across all 5 supply chain layers: <strong>Manufacturer → Distributor → Wholesaler → Retailer → Patient</strong>.
+                    Comprehensive cross-layer audit across: <strong>Manufacturer → Distributor → Wholesaler → Retailer → Patient</strong>.
                   </p>
                 </div>
 
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <button className="btn btn-secondary" onClick={() => fetchAdminBatch(adminSearchBatch)}>
-                    <span>🔄 Refresh Data</span>
+                    <span>Refresh Data</span>
                   </button>
                   <button className="btn btn-primary" onClick={runIntegrityAudit} disabled={auditing}>
-                    {auditing ? 'Auditing...' : '🛡️ Audit Chain Integrity'}
+                    {auditing ? 'Auditing...' : 'Audit Ledger Integrity'}
                   </button>
                 </div>
               </div>
@@ -1494,23 +1437,23 @@ export default function App() {
                     type="text"
                     value={adminSearchBatch}
                     onChange={(e) => setAdminSearchBatch(e.target.value)}
-                    placeholder="Search Batch ID to track across all layers (e.g. BATCH-123)..."
+                    placeholder="Enter Batch ID to audit (e.g. BATCH-2026-A101)..."
                     style={{ width: '100%' }}
                   />
                 </div>
                 <button
                   className="btn btn-accent"
                   onClick={() => fetchAdminBatch(adminSearchBatch)}
-                  disabled={adminLoading}
+                  disabled={adminLoading || !adminSearchBatch.trim()}
                 >
-                  {adminLoading ? 'Tracking...' : 'Inspect 5-Layer Pipeline'}
+                  {adminLoading ? 'Tracking...' : 'Inspect Pipeline'}
                 </button>
               </div>
 
               {/* Batch Quick Selector Chips */}
               {registeredBatchKeys.length > 0 && (
                 <div className="batch-chips-bar" style={{ marginBottom: 0 }}>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Quick Select:</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Registered Batches:</span>
                   {registeredBatchKeys.map((bId) => (
                     <button
                       key={bId}
@@ -1534,7 +1477,7 @@ export default function App() {
                 className={`tab-btn ${adminTab === 'PIPELINE' ? 'active' : ''}`}
                 onClick={() => setAdminTab('PIPELINE')}
               >
-                <span>🗺️ Simultaneous 5-Layer Pipeline Track & Trace</span>
+                <span>5-Layer Pipeline Track & Trace</span>
               </button>
               <button
                 className={`tab-btn ${adminTab === 'LEDGER' ? 'active' : ''}`}
@@ -1543,7 +1486,7 @@ export default function App() {
                   fetchLedger();
                 }}
               >
-                <span>⛓️ Cryptographic Ledger Explorer</span>
+                <span>Cryptographic Ledger Explorer</span>
                 <span className="tab-badge">{ledger.blockCount}</span>
               </button>
               <button
@@ -1553,7 +1496,7 @@ export default function App() {
                   runIntegrityAudit();
                 }}
               >
-                <span>🛡️ Cryptographic Integrity & Tamper Audit</span>
+                <span>Chain Integrity Audit</span>
               </button>
             </nav>
 
@@ -1566,17 +1509,17 @@ export default function App() {
                     <div className="card" style={{ marginBottom: '20px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                         <div>
-                          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Batch Track Record</div>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Active Batch Record</div>
                           <h3 style={{ fontSize: '1.3rem', color: 'var(--accent-cyan)' }}>
                             {adminBatchData.batchId} — {adminBatchData.originalRecord?.medicineName}
                           </h3>
                           <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                            Manufactured by: <strong>{adminBatchData.originalRecord?.manufacturer}</strong> | Mfg: {adminBatchData.originalRecord?.manufacturingDate} | Exp: {adminBatchData.originalRecord?.expiryDate}
+                            Manufacturer: <strong>{adminBatchData.originalRecord?.manufacturer}</strong> | Mfg: {adminBatchData.originalRecord?.manufacturingDate} | Exp: {adminBatchData.originalRecord?.expiryDate}
                           </div>
                         </div>
                         <div>
                           <span className="role-pill role-mfr" style={{ fontSize: '0.85rem', padding: '6px 14px' }}>
-                            Current Stage: {adminBatchData.currentStage}
+                            Current Custody: {adminBatchData.currentStage}
                           </span>
                         </div>
                       </div>
@@ -1584,47 +1527,40 @@ export default function App() {
 
                     {/* 5-Layer Pipeline Container */}
                     <div className="pipeline-track-container">
-                      {/* =======================================================
-                          LAYER 1: MANUFACTURER
-                          ======================================================= */}
-                      {(() => {
-                        const mfrBlock = adminBatchData.history?.find((b) => b.eventType === 'BATCH_REGISTRATION');
-                        return (
-                          <div className="pipeline-layer-card status-completed">
-                            <div className="layer-header">
-                              <div className="layer-title-group">
-                                <div className="layer-number-badge" style={{ background: 'rgba(16,185,129,0.2)', color: '#34d399', borderColor: '#10b981' }}>
-                                  1
-                                </div>
-                                <div>
-                                  <h3 style={{ fontSize: '1.15rem' }}>🏭 Layer 1: Manufacturer (Production & Fingerprinting)</h3>
-                                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                                    Source of Truth Creation: Digital SHA-256 baseline locked into Genesis/Registration block.
-                                  </div>
-                                </div>
-                              </div>
-                              <span className="badge badge-match">✅ Completed & Cryptographically Locked</span>
+                      {/* LAYER 1: MANUFACTURER */}
+                      <div className="pipeline-layer-card status-completed">
+                        <div className="layer-header">
+                          <div className="layer-title-group">
+                            <div className="layer-number-badge" style={{ background: 'rgba(16,185,129,0.2)', color: '#34d399', borderColor: '#10b981' }}>
+                              1
                             </div>
-
-                            <div className="grid-2" style={{ fontSize: '0.88rem' }}>
-                              <div>
-                                <div><strong>Registered By:</strong> {adminBatchData.originalRecord?.registeredBy}</div>
-                                <div><strong>Registered At:</strong> {new Date(adminBatchData.originalRecord?.registeredAt).toLocaleString()}</div>
-                                <div><strong>Batch Size:</strong> {adminBatchData.originalRecord?.quantity} Units</div>
-                              </div>
-                              <div>
-                                <div><strong>Block Index:</strong> #{adminBatchData.originalRecord?.blockIndex}</div>
-                                <div className="hash-box" style={{ fontSize: '0.74rem' }}>
-                                  <span>Data Hash: {adminBatchData.originalRecord?.dataHash}</span>
-                                </div>
-                                <div className="hash-box" style={{ fontSize: '0.74rem' }}>
-                                  <span>Block Hash: {adminBatchData.originalRecord?.blockHash}</span>
-                                </div>
+                            <div>
+                              <h3 style={{ fontSize: '1.15rem' }}>Layer 1: Manufacturer (Production & Fingerprinting)</h3>
+                              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                Source of truth established. Digital SHA-256 fingerprint anchored to ledger.
                               </div>
                             </div>
                           </div>
-                        );
-                      })()}
+                          <span className="badge badge-match">Verified Baseline</span>
+                        </div>
+
+                        <div className="grid-2" style={{ fontSize: '0.88rem' }}>
+                          <div>
+                            <div><strong>Registered By:</strong> {adminBatchData.originalRecord?.registeredBy}</div>
+                            <div><strong>Registration Time:</strong> {new Date(adminBatchData.originalRecord?.registeredAt).toLocaleString()}</div>
+                            <div><strong>Batch Quantity:</strong> {adminBatchData.originalRecord?.quantity} Units</div>
+                          </div>
+                          <div>
+                            <div><strong>Origin Block:</strong> #{adminBatchData.originalRecord?.blockIndex}</div>
+                            <div className="hash-box" style={{ fontSize: '0.74rem' }}>
+                              <span>Data Hash: {adminBatchData.originalRecord?.dataHash}</span>
+                            </div>
+                            <div className="hash-box" style={{ fontSize: '0.74rem' }}>
+                              <span>Block Hash: {adminBatchData.originalRecord?.blockHash}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
                       {/* Arrow Connector */}
                       <div className="layer-connector-down">
@@ -1632,9 +1568,7 @@ export default function App() {
                         <div className="connector-arrow">↓</div>
                       </div>
 
-                      {/* =======================================================
-                          LAYER 2: DISTRIBUTOR
-                          ======================================================= */}
+                      {/* LAYER 2: DISTRIBUTOR */}
                       {(() => {
                         const distBlock = adminBatchData.history?.find((b) => b.eventType === 'TRANSFER_DISTRIBUTOR');
                         const isCompleted = !!distBlock;
@@ -1648,18 +1582,18 @@ export default function App() {
                                   2
                                 </div>
                                 <div>
-                                  <h3 style={{ fontSize: '1.15rem' }}>🚚 Layer 2: Regional Distributor (Logistics Intake)</h3>
+                                  <h3 style={{ fontSize: '1.15rem' }}>Layer 2: Regional Distributor (Logistics Intake)</h3>
                                   <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                                     Regional verification and transit validation from manufacturing site.
                                   </div>
                                 </div>
                               </div>
                               {isCompleted ? (
-                                <span className="badge badge-match">✅ Verified & Transferred</span>
+                                <span className="badge badge-match">Verified & Transferred</span>
                               ) : isFlagged ? (
-                                <span className="badge badge-missing">⚠️ Direct Shipment / Bypassed</span>
+                                <span className="badge badge-missing">Direct Shipment</span>
                               ) : (
-                                <span className="badge badge-info">⏳ In Transit / Pending Distributor Intake</span>
+                                <span className="badge badge-info">Pending Distributor Intake</span>
                               )}
                             </div>
 
@@ -1668,7 +1602,7 @@ export default function App() {
                                 <div>
                                   <div><strong>Sender:</strong> {distBlock.sender}</div>
                                   <div><strong>Receiver:</strong> {distBlock.receiver}</div>
-                                  <div><strong>Notes:</strong> {distBlock.batchData?.notes || 'Verified transfer'}</div>
+                                  <div><strong>Logistics Notes:</strong> {distBlock.batchData?.notes || 'Verified transfer'}</div>
                                 </div>
                                 <div>
                                   <div><strong>Block Index:</strong> #{distBlock.index}</div>
@@ -1681,8 +1615,8 @@ export default function App() {
                             ) : (
                               <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
                                 {isFlagged
-                                  ? 'Note: Batch was moved directly to wholesale inventory without a separate regional distributor checkpoint.'
-                                  : 'Awaiting regional distributor to verify package physical details against manufacturer blockchain record.'}
+                                  ? 'Consignment routed directly to wholesale hub without separate regional distributor checkpoint.'
+                                  : 'Awaiting regional distributor consignment inspection and ledger verification.'}
                               </div>
                             )}
                           </div>
@@ -1695,9 +1629,7 @@ export default function App() {
                         <div className="connector-arrow">↓</div>
                       </div>
 
-                      {/* =======================================================
-                          LAYER 3: WHOLESALER
-                          ======================================================= */}
+                      {/* LAYER 3: WHOLESALER */}
                       {(() => {
                         const whlBlock = adminBatchData.history?.find((b) => b.eventType === 'TRANSFER_WHOLESALER');
                         const isCompleted = !!whlBlock;
@@ -1710,16 +1642,16 @@ export default function App() {
                                   3
                                 </div>
                                 <div>
-                                  <h3 style={{ fontSize: '1.15rem' }}>🏢 Layer 3: Wholesaler (Bulk Storage & Cross-Check)</h3>
+                                  <h3 style={{ fontSize: '1.15rem' }}>Layer 3: Wholesaler (Bulk Storage & Cross-Check)</h3>
                                   <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                                    Bulk inspection against manufacturer baseline. Blocks tampered or relabeled batches.
+                                    Bulk inspection against manufacturer baseline. Ensures anti-tampering verification.
                                   </div>
                                 </div>
                               </div>
                               {isCompleted ? (
-                                <span className="badge badge-match">✅ Verified & Transferred</span>
+                                <span className="badge badge-match">Verified & Transferred</span>
                               ) : (
-                                <span className="badge badge-info">⏳ Pending Wholesale Intake</span>
+                                <span className="badge badge-info">Pending Wholesale Intake</span>
                               )}
                             </div>
 
@@ -1740,7 +1672,7 @@ export default function App() {
                               </div>
                             ) : (
                               <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-                                Awaiting wholesale warehouse inspection. Package has not yet been checked in at wholesale hub.
+                                Awaiting wholesale warehouse inspection. Consignment has not yet been processed at wholesale hub.
                               </div>
                             )}
                           </div>
@@ -1753,9 +1685,7 @@ export default function App() {
                         <div className="connector-arrow">↓</div>
                       </div>
 
-                      {/* =======================================================
-                          LAYER 4: RETAILER / PHARMACY
-                          ======================================================= */}
+                      {/* LAYER 4: RETAILER / PHARMACY */}
                       {(() => {
                         const retBlock = adminBatchData.history?.find((b) => b.eventType === 'TRANSFER_RETAILER');
                         const isCompleted = !!retBlock;
@@ -1768,16 +1698,16 @@ export default function App() {
                                   4
                                 </div>
                                 <div>
-                                  <h3 style={{ fontSize: '1.15rem' }}>🏪 Layer 4: Retailer / Pharmacy (Retail Inventory)</h3>
+                                  <h3 style={{ fontSize: '1.15rem' }}>Layer 4: Retail Pharmacy (Dispensary Stock)</h3>
                                   <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                                     Pharmacy stock intake and validation before patient dispensing.
                                   </div>
                                 </div>
                               </div>
                               {isCompleted ? (
-                                <span className="badge badge-match">✅ Stocked in Pharmacy</span>
+                                <span className="badge badge-match">Stocked in Pharmacy</span>
                               ) : (
-                                <span className="badge badge-info">⏳ Pending Pharmacy Intake</span>
+                                <span className="badge badge-info">Pending Pharmacy Intake</span>
                               )}
                             </div>
 
@@ -1811,47 +1741,37 @@ export default function App() {
                         <div className="connector-arrow">↓</div>
                       </div>
 
-                      {/* =======================================================
-                          LAYER 5: PATIENT / CONSUMER
-                          ======================================================= */}
+                      {/* LAYER 5: PATIENT / CONSUMER */}
                       {(() => {
-                        const patBlock = adminBatchData.history?.find((b) => b.eventType === 'TRANSFER_PATIENT' || b.eventType === 'DISPENSE_PATIENT');
-                        const isDispensed = !!patBlock;
                         const isAtPharmacy = adminBatchData.history?.some((b) => b.eventType === 'TRANSFER_RETAILER');
 
                         return (
-                          <div className={`pipeline-layer-card ${isDispensed ? 'status-completed' : isAtPharmacy ? 'status-completed' : 'status-pending'}`} style={{ borderLeftColor: '#ec4899' }}>
+                          <div className="pipeline-layer-card status-completed" style={{ borderLeftColor: '#ec4899' }}>
                             <div className="layer-header">
                               <div className="layer-title-group">
                                 <div className="layer-number-badge" style={{ background: 'rgba(236,72,153,0.2)', color: '#f472b6' }}>
                                   5
                                 </div>
                                 <div>
-                                  <h3 style={{ fontSize: '1.15rem' }}>🩺 Layer 5: Patient / Consumer (Authenticity & Dispense)</h3>
+                                  <h3 style={{ fontSize: '1.15rem' }}>Layer 5: Patient / Consumer (Authenticity Verification)</h3>
                                   <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                                    Patient scans package barcode/QR to verify genuine origin and expiry validity.
+                                    End-consumer verification ensures authentic origin and valid expiration date.
                                   </div>
                                 </div>
                               </div>
-                              {isDispensed ? (
-                                <span className="badge badge-match">✅ Dispensed to Patient</span>
-                              ) : isAtPharmacy ? (
+                              {isAtPharmacy ? (
                                 <span className="badge badge-match" style={{ background: 'rgba(16,185,129,0.15)', color: '#34d399' }}>
-                                  Ready for Patient Dispense
+                                  Available for Dispense
                                 </span>
                               ) : (
-                                <span className="badge badge-info">⏳ En Route to Retailer</span>
+                                <span className="badge badge-info">Awaiting Retail Arrival</span>
                               )}
                             </div>
 
                             <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-                              {isDispensed ? (
-                                <div>Batch successfully dispensed to patient with verified provenance proof.</div>
-                              ) : isAtPharmacy ? (
-                                <div>Medicine package is stocked at licensed retail pharmacy, verified authentic, and available for prescription fulfillment.</div>
-                              ) : (
-                                <div>Medicine has not yet arrived at retail pharmacy. Patient verification will confirm genuine status upon arrival.</div>
-                              )}
+                              {isAtPharmacy
+                                ? 'Medicine batch is stocked at licensed retail pharmacy, verified authentic, and ready for patient dispensing.'
+                                : 'Medicine consignment is in transit through authorized distribution channels.'}
                             </div>
                           </div>
                         );
@@ -1859,11 +1779,11 @@ export default function App() {
                     </div>
                   </div>
                 ) : (
-                  <div className="card" style={{ textAlign: 'center', padding: '40px 20px' }}>
-                    <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🔍</div>
-                    <h3 style={{ fontSize: '1.2rem', marginBottom: '6px' }}>Select or Search a Batch to Track</h3>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: '500px', margin: '0 auto' }}>
-                      Enter a Batch ID in the search bar above or click one of the quick selection chips to inspect its multi-layer supply chain status.
+                  <div className="card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+                    <div style={{ fontSize: '2rem', marginBottom: '12px' }}>🔍</div>
+                    <h3 style={{ fontSize: '1.15rem', marginBottom: '6px' }}>Select or Search a Batch to Track</h3>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', maxWidth: '480px', margin: '0 auto' }}>
+                      Enter a Batch ID in the audit bar above or select from registered batches to inspect the complete multi-layer provenance pipeline.
                     </p>
                   </div>
                 )}
@@ -1877,11 +1797,11 @@ export default function App() {
                   <div>
                     <h2 className="card-title">Cryptographic Blockchain Ledger</h2>
                     <p className="card-desc">
-                      Every registration and transfer is sealed with SHA-256. Previous hashes chain blocks together.
+                      Chronological ledger entries sealed with SHA-256 digests.
                     </p>
                   </div>
                   <button className="btn btn-secondary" onClick={fetchLedger} disabled={loadingLedger}>
-                    {loadingLedger ? 'Refreshing...' : '🔄 Refresh Ledger'}
+                    {loadingLedger ? 'Refreshing...' : 'Refresh Ledger'}
                   </button>
                 </div>
 
@@ -1926,13 +1846,13 @@ export default function App() {
               <div className="card">
                 <div className="card-header">
                   <div>
-                    <h2 className="card-title">Cryptographic Chain Integrity & Tamper Audit</h2>
+                    <h2 className="card-title">Cryptographic Chain Integrity Audit</h2>
                     <p className="card-desc">
-                      Recomputes SHA-256 hashes of every block and verifies previousHash linkage across the entire chain.
+                      Recomputes SHA-256 block hashes and verifies cryptographic linkage across the ledger.
                     </p>
                   </div>
                   <button className="btn btn-primary" onClick={runIntegrityAudit} disabled={auditing}>
-                    {auditing ? 'Auditing...' : '🛡️ Re-Audit Ledger Now'}
+                    {auditing ? 'Auditing...' : 'Re-Audit Ledger'}
                   </button>
                 </div>
 
@@ -1941,13 +1861,13 @@ export default function App() {
                     <div className={`alert-banner ${auditResult.isChainValid ? 'alert-success' : 'alert-danger'}`}>
                       <span style={{ fontSize: '1.8rem' }}>{auditResult.isChainValid ? '🛡️' : '🚨'}</span>
                       <div>
-                        <strong style={{ fontSize: '1.1rem' }}>
-                          {auditResult.isChainValid ? 'Blockchain Integrity Verified 100% Cryptographically Secure' : 'Tampering Detected in Ledger!'}
+                        <strong style={{ fontSize: '1.05rem' }}>
+                          {auditResult.isChainValid ? 'Blockchain Integrity Validated: 100% Secure' : 'Integrity Alert: Inconsistency Detected'}
                         </strong>
-                        <div style={{ marginTop: '4px' }}>
+                        <div style={{ marginTop: '4px', fontSize: '0.88rem' }}>
                           {auditResult.isChainValid
-                            ? `Audited ${auditResult.totalBlocksAudited} blocks. Zero broken links, zero hash mismatches.`
-                            : `Tampered Block Index: #${auditResult.tamperedBlockIndex}. Error: ${auditResult.error}`}
+                            ? `Audited ${auditResult.totalBlocksAudited} blocks across the ledger. All hash digests and linkages intact.`
+                            : `Tampered Block Index: #${auditResult.tamperedBlockIndex}. Details: ${auditResult.error}`}
                         </div>
                         <div style={{ fontSize: '0.75rem', marginTop: '6px', color: 'var(--text-muted)' }}>
                           Audit Timestamp: {new Date(auditResult.timestamp).toLocaleString()}
