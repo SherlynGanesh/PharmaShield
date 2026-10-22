@@ -41,13 +41,13 @@ router.post(
 );
 
 /**
- * 2. Stage Verification (Retailer / Wholesaler)
+ * 2. Stage Verification (Distributor / Wholesaler / Retailer / Patient)
  * Compares uploaded package image against the original blockchain manufacturer record.
  */
 router.post(
   "/verify",
   upload.single("image"),
-  requireRole("MANUFACTURER", "RETAILER", "WHOLESALER"),
+  requireRole("MANUFACTURER", "DISTRIBUTOR", "WHOLESALER", "RETAILER", "PATIENT"),
   verifyBatchController
 );
 
@@ -57,7 +57,7 @@ router.post(
  */
 router.post(
   "/transfer",
-  requireRole("MANUFACTURER", "RETAILER", "WHOLESALER"),
+  requireRole("MANUFACTURER", "DISTRIBUTOR", "WHOLESALER", "RETAILER", "PATIENT"),
   recordTransferController
 );
 

@@ -10,10 +10,10 @@ const PARTICIPANT_PROFILES = {
     id: "MFR-001",
     allowedActions: ["REGISTER_BATCH", "VIEW_CHAIN", "AUDIT_BATCH"],
   },
-  RETAILER: {
-    role: "RETAILER",
-    name: "Apollo Prime Pharmacy",
-    id: "RET-102",
+  DISTRIBUTOR: {
+    role: "DISTRIBUTOR",
+    name: "Apex Global Pharma Distribution",
+    id: "DST-050",
     allowedActions: ["VERIFY_BATCH", "RECORD_TRANSFER", "VIEW_CHAIN", "AUDIT_BATCH"],
   },
   WHOLESALER: {
@@ -21,6 +21,18 @@ const PARTICIPANT_PROFILES = {
     name: "MedSupply Logistics & Wholesale",
     id: "WHL-205",
     allowedActions: ["VERIFY_BATCH", "RECORD_TRANSFER", "VIEW_CHAIN", "AUDIT_BATCH"],
+  },
+  RETAILER: {
+    role: "RETAILER",
+    name: "Apollo Prime Pharmacy",
+    id: "RET-102",
+    allowedActions: ["VERIFY_BATCH", "RECORD_TRANSFER", "VIEW_CHAIN", "AUDIT_BATCH"],
+  },
+  PATIENT: {
+    role: "PATIENT",
+    name: "Consumer & Patient Verification Portal",
+    id: "PAT-901",
+    allowedActions: ["VERIFY_BATCH", "VIEW_CHAIN", "AUDIT_BATCH"],
   },
 };
 

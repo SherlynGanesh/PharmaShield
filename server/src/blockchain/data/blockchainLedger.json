@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-22T06:46:14.046Z",
-  "blockCount": 22,
+  "updatedAt": "2026-10-22T14:14:09.250Z",
+  "blockCount": 28,
   "registeredBatches": {
     "BATCH-123": {
       "medicineName": "Piopar-GZ Total",
@@ -185,6 +185,46 @@
       "dataHash": "f1c755744ea07c46f350711285ec67428433929d0b8b4f38b773206791618505",
       "blockIndex": 20,
       "blockHash": "0872fb173292c0c16c893759a45b63956f829f73f75a53166547a024349a294b"
+    },
+    "BATCH-1792675053": {
+      "medicineName": "Piopar-GZ Total",
+      "batchNumber": "BATCH-1792675053",
+      "quantity": "1000",
+      "manufacturer": "Bioaltus Pharmaceuticals Pvt. Ltd.",
+      "manufacturingDate": "04/2026",
+      "expiryDate": "03/2028",
+      "registeredBy": "PharmaCorp Manufacturing Ltd.",
+      "registeredAt": "2026-10-22T13:17:33.623Z",
+      "rawExtracted": {
+        "medicineName": "Piopar-GZ Total",
+        "manufacturer": "Bioaltus Pharmaceuticals Pvt. Ltd.",
+        "batchNumber": "BATCH-1792675053",
+        "manufacturingDate": "04/2026",
+        "expiryDate": "03/2028"
+      },
+      "dataHash": "eae89bffd250b94da099b33dd7f6814ce857f0325650952ee550ae5bcb82d6a7",
+      "blockIndex": 22,
+      "blockHash": "69fc380c8094b40ce1cf3f5c128eafe5c206e5d0a0e790d3ea8c94a74a28b89e"
+    },
+    "BATCH-1792678448": {
+      "medicineName": "Piopar-GZ Total",
+      "batchNumber": "BATCH-1792678448",
+      "quantity": "1000",
+      "manufacturer": "Bioaltus Pharmaceuticals Pvt. Ltd.",
+      "manufacturingDate": "04/2026",
+      "expiryDate": "03/2028",
+      "registeredBy": "PharmaCorp Manufacturing Ltd.",
+      "registeredAt": "2026-10-22T14:14:08.709Z",
+      "rawExtracted": {
+        "medicineName": "Piopar-GZ Total",
+        "manufacturer": "Bioaltus Pharmaceuticals Pvt. Ltd.",
+        "batchNumber": "BATCH-1792678448",
+        "manufacturingDate": "04/2026",
+        "expiryDate": "03/2028"
+      },
+      "dataHash": "3efe58a64104bcf7c9bb5e8bd0c33a75a6f58a17a6188f16be448c66cdb7e8d7",
+      "blockIndex": 25,
+      "blockHash": "666995613568e1de6e85f4c8dfdee9f7515e2f30dbeebb51fdc7f92f89a653f4"
     }
   },
   "chain": [
@@ -743,6 +783,152 @@
       "dataHash": "53fb60062184eb4e05a850c849d6e5fee2b10c3668af31e861dd3d570c9be9ac",
       "previousHash": "0872fb173292c0c16c893759a45b63956f829f73f75a53166547a024349a294b",
       "hash": "39a6f0e33333624b85b0e9abbd44821f8d64a59e814abedd8b28023ad43b4965"
+    },
+    {
+      "index": 22,
+      "timestamp": "2026-10-22T13:17:33.623Z",
+      "eventType": "BATCH_REGISTRATION",
+      "batchId": "BATCH-1792675053",
+      "sender": "PharmaCorp Manufacturing Ltd.",
+      "receiver": "SUPPLY_CHAIN_NETWORK",
+      "batchData": {
+        "medicineName": "Piopar-GZ Total",
+        "batchNumber": "BATCH-1792675053",
+        "quantity": "1000",
+        "manufacturer": "Bioaltus Pharmaceuticals Pvt. Ltd.",
+        "manufacturingDate": "04/2026",
+        "expiryDate": "03/2028",
+        "registeredBy": "PharmaCorp Manufacturing Ltd.",
+        "registeredAt": "2026-10-22T13:17:33.623Z",
+        "rawExtracted": {
+          "medicineName": "Piopar-GZ Total",
+          "manufacturer": "Bioaltus Pharmaceuticals Pvt. Ltd.",
+          "batchNumber": "BATCH-1792675053",
+          "manufacturingDate": "04/2026",
+          "expiryDate": "03/2028"
+        },
+        "dataHash": "eae89bffd250b94da099b33dd7f6814ce857f0325650952ee550ae5bcb82d6a7"
+      },
+      "dataHash": "eae89bffd250b94da099b33dd7f6814ce857f0325650952ee550ae5bcb82d6a7",
+      "previousHash": "39a6f0e33333624b85b0e9abbd44821f8d64a59e814abedd8b28023ad43b4965",
+      "hash": "69fc380c8094b40ce1cf3f5c128eafe5c206e5d0a0e790d3ea8c94a74a28b89e"
+    },
+    {
+      "index": 23,
+      "timestamp": "2026-10-22T13:17:33.641Z",
+      "eventType": "TRANSFER_RETAILER",
+      "batchId": "BATCH-1792675053",
+      "sender": "Bioaltus Pharmaceuticals Pvt. Ltd.",
+      "receiver": "Apollo Prime Pharmacy",
+      "batchData": {
+        "batchId": "BATCH-1792675053",
+        "stage": "RETAILER",
+        "sender": "Bioaltus Pharmaceuticals Pvt. Ltd.",
+        "receiver": "Apollo Prime Pharmacy",
+        "notes": "Verified package integrity at retail facility",
+        "verifiedAgainstManufacturer": true,
+        "originalDataHash": "eae89bffd250b94da099b33dd7f6814ce857f0325650952ee550ae5bcb82d6a7",
+        "timestamp": "2026-10-22T13:17:33.641Z",
+        "extractedDetails": null
+      },
+      "dataHash": "53fb60062184eb4e05a850c849d6e5fee2b10c3668af31e861dd3d570c9be9ac",
+      "previousHash": "69fc380c8094b40ce1cf3f5c128eafe5c206e5d0a0e790d3ea8c94a74a28b89e",
+      "hash": "65304c7c8b9b20d888e4ea9fd4f41b2444cac1e2a54b2a4b46c5a44b7b450b06"
+    },
+    {
+      "index": 24,
+      "timestamp": "2026-10-22T13:17:33.655Z",
+      "eventType": "TRANSFER_WHOLESALER",
+      "batchId": "BATCH-1792675053",
+      "sender": "Apollo Prime Pharmacy",
+      "receiver": "MedSupply Logistics",
+      "batchData": {
+        "batchId": "BATCH-1792675053",
+        "stage": "WHOLESALER",
+        "sender": "Apollo Prime Pharmacy",
+        "receiver": "MedSupply Logistics",
+        "notes": "Wholesaler accepted receipt and verified genuine record",
+        "verifiedAgainstManufacturer": true,
+        "originalDataHash": "eae89bffd250b94da099b33dd7f6814ce857f0325650952ee550ae5bcb82d6a7",
+        "timestamp": "2026-10-22T13:17:33.655Z",
+        "extractedDetails": null
+      },
+      "dataHash": "53fb60062184eb4e05a850c849d6e5fee2b10c3668af31e861dd3d570c9be9ac",
+      "previousHash": "65304c7c8b9b20d888e4ea9fd4f41b2444cac1e2a54b2a4b46c5a44b7b450b06",
+      "hash": "33957d051b0dcc2181b34fa72417da911eab6d72a400e760de19f4b1fe8f5af1"
+    },
+    {
+      "index": 25,
+      "timestamp": "2026-10-22T14:14:08.709Z",
+      "eventType": "BATCH_REGISTRATION",
+      "batchId": "BATCH-1792678448",
+      "sender": "PharmaCorp Manufacturing Ltd.",
+      "receiver": "SUPPLY_CHAIN_NETWORK",
+      "batchData": {
+        "medicineName": "Piopar-GZ Total",
+        "batchNumber": "BATCH-1792678448",
+        "quantity": "1000",
+        "manufacturer": "Bioaltus Pharmaceuticals Pvt. Ltd.",
+        "manufacturingDate": "04/2026",
+        "expiryDate": "03/2028",
+        "registeredBy": "PharmaCorp Manufacturing Ltd.",
+        "registeredAt": "2026-10-22T14:14:08.709Z",
+        "rawExtracted": {
+          "medicineName": "Piopar-GZ Total",
+          "manufacturer": "Bioaltus Pharmaceuticals Pvt. Ltd.",
+          "batchNumber": "BATCH-1792678448",
+          "manufacturingDate": "04/2026",
+          "expiryDate": "03/2028"
+        },
+        "dataHash": "3efe58a64104bcf7c9bb5e8bd0c33a75a6f58a17a6188f16be448c66cdb7e8d7"
+      },
+      "dataHash": "3efe58a64104bcf7c9bb5e8bd0c33a75a6f58a17a6188f16be448c66cdb7e8d7",
+      "previousHash": "33957d051b0dcc2181b34fa72417da911eab6d72a400e760de19f4b1fe8f5af1",
+      "hash": "666995613568e1de6e85f4c8dfdee9f7515e2f30dbeebb51fdc7f92f89a653f4"
+    },
+    {
+      "index": 26,
+      "timestamp": "2026-10-22T14:14:09.230Z",
+      "eventType": "TRANSFER_RETAILER",
+      "batchId": "BATCH-1792678448",
+      "sender": "Bioaltus Pharmaceuticals Pvt. Ltd.",
+      "receiver": "Apollo Prime Pharmacy",
+      "batchData": {
+        "batchId": "BATCH-1792678448",
+        "stage": "RETAILER",
+        "sender": "Bioaltus Pharmaceuticals Pvt. Ltd.",
+        "receiver": "Apollo Prime Pharmacy",
+        "notes": "Verified package integrity at retail facility",
+        "verifiedAgainstManufacturer": true,
+        "originalDataHash": "3efe58a64104bcf7c9bb5e8bd0c33a75a6f58a17a6188f16be448c66cdb7e8d7",
+        "timestamp": "2026-10-22T14:14:09.230Z",
+        "extractedDetails": null
+      },
+      "dataHash": "53fb60062184eb4e05a850c849d6e5fee2b10c3668af31e861dd3d570c9be9ac",
+      "previousHash": "666995613568e1de6e85f4c8dfdee9f7515e2f30dbeebb51fdc7f92f89a653f4",
+      "hash": "c6babbf6cee31d2de3b8fad52e2f373d5792d7dccd462f58c398eccd4d0dc9d6"
+    },
+    {
+      "index": 27,
+      "timestamp": "2026-10-22T14:14:09.249Z",
+      "eventType": "TRANSFER_WHOLESALER",
+      "batchId": "BATCH-1792678448",
+      "sender": "Apollo Prime Pharmacy",
+      "receiver": "MedSupply Logistics",
+      "batchData": {
+        "batchId": "BATCH-1792678448",
+        "stage": "WHOLESALER",
+        "sender": "Apollo Prime Pharmacy",
+        "receiver": "MedSupply Logistics",
+        "notes": "Wholesaler accepted receipt and verified genuine record",
+        "verifiedAgainstManufacturer": true,
+        "originalDataHash": "3efe58a64104bcf7c9bb5e8bd0c33a75a6f58a17a6188f16be448c66cdb7e8d7",
+        "timestamp": "2026-10-22T14:14:09.249Z",
+        "extractedDetails": null
+      },
+      "dataHash": "53fb60062184eb4e05a850c849d6e5fee2b10c3668af31e861dd3d570c9be9ac",
+      "previousHash": "c6babbf6cee31d2de3b8fad52e2f373d5792d7dccd462f58c398eccd4d0dc9d6",
+      "hash": "95214473766ce4676609111e05d1abf2c4f10b7b013bbab10bb2b972dcb860f7"
     }
   ]
 }
