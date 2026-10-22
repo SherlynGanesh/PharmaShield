@@ -3,16 +3,24 @@ const OpenAI = require("openai");
 const fs = require("fs");
 const path = require("path");
 
-if (!process.env.GROQ_API_KEY) {
-  throw new Error("GROQ_API_KEY is missing from the server environment.");
-}
+const { extractTextFromImage } = require("./ocrService");
+const { parseMedicineText } = require("./medicineParser");
 
-const ai = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY,
-  baseURL: "https://api.groq.com/openai/v1",
-  timeout: 45_000,
-  maxRetries: 1,
-});
+let aiClient = null;
+function getAiClient() {
+  if (!process.env.GROQ_API_KEY) {
+    return null;
+  }
+  if (!aiClient) {
+    aiClient = new OpenAI({
+      apiKey: process.env.GROQ_API_KEY,
+      baseURL: "https://api.groq.com/openai/v1",
+      timeout: 45_000,
+      maxRetries: 1,
+    });
+  }
+  return aiClient;
+}
 
 const MODEL = "qwen/qwen3.8-27b";
 
@@ -168,6 +176,31 @@ over a guessed answer.
 `;
 
   try {
+    const ai = getAiClient();
+    if (!ai) {
+      console.log("GROQ_API_KEY not configured in environment. Using local OCR extraction fallback.");
+      const ocrResult = await extractTextFromImage(imagePath);
+      const parsed = parseMedicineText(ocrResult.bestText || ocrResult.text || "");
+      const normalized = normalizeMedicineInfo({
+        medicineName: parsed.medicineName || null,
+        manufacturer: parsed.manufacturer || null,
+        composition: null,
+        batchNumber: parsed.batchNumber || null,
+        manufacturingDate: parsed.manufacturingDate || null,
+        expiryDate: parsed.expiryDate || null,
+        dosage: null,
+        netVolume: parsed.netVolume || null,
+        mrp: parsed.mrp || null,
+        usp: parsed.usp || null,
+        warnings: parsed.warnings || [],
+      });
+      return {
+        success: true,
+        medicineInfo: normalized,
+        extractor: "ocr-fallback",
+      };
+    }
+
     const response = await ai.chat.completions.create({
       model: MODEL,
       temperature: 0,

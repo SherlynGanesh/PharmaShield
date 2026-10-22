@@ -9,20 +9,32 @@ const verificationRoutes = require(
   "./medicineVerification/verificationRoutes"
 );
 
+const blockchainRoutes = require("./blockchain/blockchainRoutes");
+
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// Existing Gemini Vision and damage-detection routes
+// Existing Gemini Vision, OCR, and damage-detection routes
 app.use("/api/medicine", medicineRoutes);
 
-// Your medicine reference verification route
+// Existing medicine reference JSON verification route (kept separate)
 app.use("/api/medicine", verificationRoutes);
+
+// New Blockchain-Based Medicine Supply Chain Verification routes
+app.use("/api/blockchain", blockchainRoutes);
 
 app.get("/", (req, res) => {
   res.json({
-    message: "PharmaShield AI backend is running!"
+    message: "PharmaShield AI backend is running!",
+    modules: {
+      visionExtraction: "/api/medicine/gemini-vision",
+      ocrExtraction: "/api/medicine/ocr",
+      damageDetection: "/api/medicine/damage-detection",
+      referenceVerification: "/api/medicine/verify-reference",
+      blockchainVerification: "/api/blockchain",
+    },
   });
 });
 

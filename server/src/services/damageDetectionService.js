@@ -2,12 +2,22 @@
 const OpenAI = require("openai");
 const fs = require("fs");
 
-const ai = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY,
-  baseURL: "https://api.groq.com/openai/v1",
-});
+let aiClient = null;
+function getAiClient() {
+  if (!process.env.GROQ_API_KEY) {
+    throw new Error("GROQ_API_KEY is missing from the server environment.");
+  }
+  if (!aiClient) {
+    aiClient = new OpenAI({
+      apiKey: process.env.GROQ_API_KEY,
+      baseURL: "https://api.groq.com/openai/v1",
+    });
+  }
+  return aiClient;
+}
 
 const detectPackageDamage = async (imagePath) => {
+  const ai = getAiClient();
   const imageBuffer = fs.readFileSync(imagePath);
   const base64Image = imageBuffer.toString("base64");
 
